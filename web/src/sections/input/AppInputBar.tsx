@@ -805,6 +805,7 @@ const AppInputBar = React.memo(
                   sessionId,
                   controller: session.abortController,
                   errorMessage: tReadiness("checkFailed"),
+                  mode: "recovery",
                 }).finally(() => setIsCheckingCompletion(false));
                 return;
               }
