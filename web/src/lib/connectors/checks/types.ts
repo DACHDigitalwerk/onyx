@@ -26,6 +26,27 @@ export type CapabilityCheckStatus =
   | "indeterminate"
   | "skipped";
 
+/** Mirrors `CheckErrorKind`: why a check failed or is incomplete. */
+export type CheckErrorKind =
+  | "rejected"
+  | "permission"
+  | "invalid"
+  | "rate_limited"
+  | "timeout"
+  | "unreachable"
+  | "inconclusive"
+  | "unexpected";
+
+/** Mirrors `CheckNotRunReason`: why a skipped check did not run. */
+export type CheckNotRunReason =
+  | "dependency_failed"
+  | "dependency_incomplete"
+  | "dependency_skipped"
+  | "rate_limited"
+  | "nothing_in_scope"
+  | "skipped_by_user"
+  | "stopped_by_user";
+
 /** What a discovery check lists, named by `CheckFindingKey` on the backend. */
 export type CheckFindingKey =
   | "shared_drives"
@@ -73,8 +94,16 @@ export interface CapabilityCheckResult {
   /** A required check that fails blocks the capability. */
   required: boolean;
   status: CapabilityCheckStatus;
-  /** Failure text, skip reason, or empty on success. */
+  /** Failure text, skip reason, or empty on success. Kept in full for support. */
   message: string;
+  /** The row's short line: what the check found or what is wrong. */
+  summary: string | null;
+  /** Up to three lines of what happened and what is needed. */
+  description: string | null;
+  error_kind: CheckErrorKind | null;
+  not_run_reason: CheckNotRunReason | null;
+  /** False for a skipped check that does not apply to the access type or config. */
+  applicable: boolean;
   remediation: string | null;
   docs_link: string | null;
   duration_ms: number | null;
@@ -125,6 +154,10 @@ export interface DraftCheckState {
   required: boolean;
   state: DraftCheckStateKind;
   message: string;
+  summary: string | null;
+  description: string | null;
+  error_kind: CheckErrorKind | null;
+  not_run_reason: CheckNotRunReason | null;
   missing_fields: string[];
   invalid_fields: string[];
   remediation: string | null;

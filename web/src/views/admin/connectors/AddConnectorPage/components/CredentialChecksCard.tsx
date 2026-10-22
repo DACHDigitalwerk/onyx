@@ -31,7 +31,7 @@ import {
   SvgXOctagon,
   SvgRefreshCw,
 } from "@opal/icons";
-import type { IconFunctionComponent, IconProps, RichStr } from "@opal/types";
+import type { IconFunctionComponent, RichStr } from "@opal/types";
 import { escapeMarkdown, markdown } from "@opal/utils";
 import type {
   CapabilityCheckResult,
@@ -43,6 +43,7 @@ import type {
 import { IconLoader } from "@opal/loaders";
 import type { ConfigurableSources } from "@/lib/connectors/types/source";
 import {
+  ChecksFailedIcon,
   useConnectorChecks,
   useResetChecksOnCredentialChange,
   useConnectorChecksProgress,
@@ -63,11 +64,13 @@ export type CheckLine = Pick<
   | "display_name"
   | "required"
   | "message"
+  | "summary"
+  | "description"
   | "remediation"
   | "docs_link"
 > & { state: CheckLineState };
 
-// Outcomes that need reading (passed, failed, unverified) show their details
+// Outcomes that need reading (passed, failed, incomplete) show their details
 // in the primary text colour; the rest stay muted. Only a required failure is
 // red and heavy, in `CheckLog`.
 const OUTCOME = { font: "main-ui-body", color: "text-04" } as const;
@@ -154,16 +157,16 @@ function CheckLog({ check }: CheckLogProps) {
   const { variant, icon, detail, font, color } = CHECK_LOGS[check.state];
   // A failed required check blocks the form or Create, so its line is heavy.
   const blocking = check.state === "failed" && check.required;
-  // How to fix a failed or unverified check, with a link to the docs.
+  // What happened to a failed or incomplete check and what is needed, with
+  // a link to the docs. Results from before descriptions give remediation.
+  const detailText: string | null = check.description ?? check.remediation;
   const guidance: RichStr | undefined =
     (check.state === "failed" ||
       check.state === "incomplete" ||
       check.state === "indeterminate") &&
-    (check.remediation !== null || check.docs_link !== null)
+    (detailText !== null || check.docs_link !== null)
       ? markdown(
-          ...(check.remediation !== null
-            ? [escapeMarkdown(check.remediation)]
-            : []),
+          ...(detailText !== null ? [escapeMarkdown(detailText)] : []),
           ...(check.docs_link !== null
             ? [`[${escapeMarkdown(t("docsLink.label"))}](${check.docs_link})`]
             : [])
@@ -186,7 +189,7 @@ function CheckLog({ check }: CheckLogProps) {
           color={messageColor}
           textPosition="text-start"
         >
-          {check.message || t(detail)}
+          {check.summary ?? (check.message || t(detail))}
         </OverflowText>
       }
       rightChildren={
@@ -266,19 +269,6 @@ export function CheckLineGroups({ lines }: CheckLineGroupsProps) {
  * The ring and the title count every check, so a run fills them in as checks
  * finish.
  */
-/**
- * A red stop sign, for a run that broke. Content colors its icon from its own
- * stylesheet, so the red is an inline style; Content's sizing stays.
- */
-function FailedToRunIcon({ style, ...props }: IconProps) {
-  return (
-    <SvgXOctagon
-      {...props}
-      style={{ ...style, color: "var(--status-error-05)" }}
-    />
-  );
-}
-
 interface CheckCardViewProps {
   status: ConnectorChecksStatus;
   /** The finished checks, in any order. */
@@ -363,13 +353,14 @@ export function CheckCardView({
   const summary = useMemo(() => {
     if (notice) return notice;
     if (!hasChecks) return isRunning ? t("state.inProgress") : t("empty.label");
+    // The groups' order.
     const parts: Array<[string, number]> = [
       [t("summary.failed", { count: count("failed") }), count("failed")],
       [t("summary.unverified", { count: incompleteCount }), incompleteCount],
+      [t("summary.successful", { count: count("passed") }), count("passed")],
+      [t("summary.skipped", { count: count("skipped") }), count("skipped")],
       [t("summary.inProgress", { count: inProgressCount }), inProgressCount],
       [t("summary.expected", { count: expectedCount }), expectedCount],
-      [t("summary.skipped", { count: count("skipped") }), count("skipped")],
-      [t("summary.successful", { count: count("passed") }), count("passed")],
     ];
     return format.list(
       parts.filter(([, n]) => n > 0).map(([label]) => label),
@@ -386,13 +377,17 @@ export function CheckCardView({
     format,
   ]);
 
-  const progress = useConnectorChecksProgress(stateCounts, status);
+  const progress = useConnectorChecksProgress(
+    stateCounts,
+    status,
+    requiredFailed > 0
+  );
 
   const header = (
     <ContentAction
       // A run that broke has no counts, so the ring would read as complete;
       // a red X stands in, without dimming the title.
-      icon={notice ? FailedToRunIcon : progress.icon}
+      icon={notice ? ChecksFailedIcon : progress.icon}
       title={t("title")}
       suffix={progress.suffix}
       description={summary}
