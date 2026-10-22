@@ -237,3 +237,24 @@ test("a failed row's tooltip gives both the description and the repair step", as
     "Fix the channel regex in the connector settings."
   );
 });
+
+test("a successful row's tooltip gives its description", async () => {
+  const user = setupUser();
+  render(
+    <CheckLineGroups
+      lines={[
+        line({
+          state: "passed",
+          summary: "Signed in",
+          description: "The app can read only the sites it was granted.",
+        }),
+      ]}
+    />
+  );
+
+  await user.hover(screen.getByRole("button", { name: "More information" }));
+
+  expect(await screen.findByRole("tooltip")).toHaveTextContent(
+    "The app can read only the sites it was granted."
+  );
+});

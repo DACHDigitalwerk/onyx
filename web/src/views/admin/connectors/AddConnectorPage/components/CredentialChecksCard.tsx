@@ -12,6 +12,7 @@ import {
   Divider,
   Fold,
   IconTooltip,
+  type IconTooltipStatus,
   Log,
   type LogVariant,
   OverflowText,
@@ -157,8 +158,8 @@ function CheckLog({ check }: CheckLogProps) {
   const { variant, icon, detail, font, color } = CHECK_LOGS[check.state];
   // A failed required check blocks the form or Create, so its line is heavy.
   const blocking = check.state === "failed" && check.required;
-  // What happened to a failed or incomplete check, how to repair it, and a
-  // link to the docs. The description and the repair step are separate texts.
+  // What the check found or what went wrong, how to repair it, and a link to
+  // the docs. The description and the repair step are separate texts.
   const guidanceLines: string[] = [
     ...new Set(
       [check.description, check.remediation].filter(
@@ -172,12 +173,13 @@ function CheckLog({ check }: CheckLogProps) {
     );
   }
   const guidance: RichStr | undefined =
-    (check.state === "failed" ||
-      check.state === "incomplete" ||
-      check.state === "indeterminate") &&
-    guidanceLines.length > 0
-      ? markdown(...guidanceLines)
-      : undefined;
+    guidanceLines.length > 0 ? markdown(...guidanceLines) : undefined;
+  const guidanceStatus: IconTooltipStatus =
+    check.state === "failed"
+      ? "error"
+      : check.state === "incomplete" || check.state === "indeterminate"
+        ? "warning"
+        : "default";
 
   const logVariant: LogVariant = blocking ? "error-heavy" : variant;
   const messageFont: TextFont = blocking ? "main-ui-action" : font;
@@ -201,10 +203,7 @@ function CheckLog({ check }: CheckLogProps) {
       rightChildren={
         <Section flexDirection="row" width="fit" height="fit" gap={1}>
           {guidance !== undefined && (
-            <IconTooltip
-              status={check.state === "failed" ? "error" : "warning"}
-              tooltip={guidance}
-            />
+            <IconTooltip status={guidanceStatus} tooltip={guidance} />
           )}
           {check.required && (
             <Tag
