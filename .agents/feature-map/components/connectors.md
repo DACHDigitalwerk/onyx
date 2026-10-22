@@ -639,7 +639,8 @@ Re-run Checks. A later form change does not start one: the checks card shows
 "Settings changed" and Create waits for a run of the current form. A re-run keeps
 the form unlocked until it finishes its binding checks. The card shows the server's
 reason when it refuses a start (e.g. the credential use rule's 403). It stops
-polling a run when a fetch fails or the run still runs after
+polling a run when a fetch fails, does not settle within
+`DRAFT_RUN_POLL_TIMEOUT_MS`, or reads the run as still running after
 `DRAFT_RUN_CLIENT_DEADLINE_MS`, and shows the run as failed to run. Cancel, shown
 while a run runs, stops it and returns the card to Start Checks.
 Each source with named checks sets it on its sign-in check, and some sources also
