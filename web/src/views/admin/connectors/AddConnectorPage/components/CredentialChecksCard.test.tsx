@@ -38,7 +38,7 @@ jest.mock("@/lib/connectors/checks/svc", () => ({
 }));
 // A run fetch returns what the latest start request returned.
 jest.mock("@/lib/fetcher", () => ({
-  errorHandlingFetcher: jest.fn(async () => {
+  errorHandlingFetchWith: jest.fn(async () => {
     const { startDraftCheckRun } = jest.requireMock(
       "@/lib/connectors/checks/svc"
     );
