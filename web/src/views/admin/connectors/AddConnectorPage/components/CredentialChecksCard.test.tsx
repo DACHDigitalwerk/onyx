@@ -2,7 +2,8 @@
  * The mounted checks card starts a run only from Start Checks or Re-run
  * Checks: a form change after a run flags the change and waits. Check rows
  * read the result line the backend gives, with the guide's state words as the
- * fallback, and keep every guidance text in their tooltip.
+ * fallback, and keep every guidance text in their tooltip. The card names why a
+ * run failed and can stop one.
  */
 import { Formik, useFormikContext, type FormikContextType } from "formik";
 import {
@@ -14,13 +15,16 @@ import {
 } from "@tests/setup/test-utils";
 import CredentialChecksCard, {
   type CheckLine,
+  CheckCardView,
   CheckLineGroups,
 } from "@/views/admin/connectors/AddConnectorPage/components/CredentialChecksCard";
 import {
   fetchDraftCheckPlan,
   startDraftCheckRun,
 } from "@/lib/connectors/checks/svc";
+import { NO_CHECKS } from "@/lib/connectors/checks/hooks";
 import type {
+  ConnectorChecksStatus,
   DraftCheckRunSnapshot,
   DraftCheckState,
 } from "@/lib/connectors/checks/types";
@@ -257,4 +261,47 @@ test("a successful row's tooltip gives its description", async () => {
   expect(await screen.findByRole("tooltip")).toHaveTextContent(
     "The app can read only the sites it was granted."
   );
+});
+
+function renderCardView(
+  status: ConnectorChecksStatus,
+  props: { failureReason?: string; onCancel?: () => void } = {}
+) {
+  render(
+    <CheckCardView
+      status={status}
+      results={[]}
+      openChecks={[]}
+      inProgressCount={0}
+      expectedCount={0}
+      stateCounts={NO_CHECKS}
+      onRerun={jest.fn()}
+      {...props}
+    />
+  );
+}
+
+test("names the server's reason when the run failed to run", () => {
+  const reason = "Credential 26 is shared with you.";
+  renderCardView("failedToRun", { failureReason: reason });
+
+  expect(screen.getAllByText(reason).length).toBeGreaterThan(0);
+  expect(
+    screen.queryByText("Checks failed to run. Try again.")
+  ).not.toBeInTheDocument();
+});
+
+test("offers Cancel only while the checks run", async () => {
+  const user = setupUser();
+  const onCancel = jest.fn();
+  renderCardView("running", { onCancel });
+
+  await user.click(screen.getByRole("button", { name: "Cancel" }));
+  expect(onCancel).toHaveBeenCalledTimes(1);
+});
+
+test("offers no Cancel once the checks finished", () => {
+  renderCardView("passed", { onCancel: jest.fn() });
+
+  expect(screen.queryByRole("button", { name: "Cancel" })).toBeNull();
 });

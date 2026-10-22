@@ -3452,6 +3452,12 @@
           },
           "viewDetails": {
             "tooltip": "Ver detalles"
+          },
+          "failedToRun": {
+            "title": "No se pudieron ejecutar las comprobaciones"
+          },
+          "unavailable": {
+            "label": "No disponible"
           }
         },
         "accountUnavailable": {
@@ -10814,6 +10820,13 @@
         "proceedButton": {
           "label": "Crear el conector de todos modos"
         }
+      },
+      "runLost": "Las comprobaciones dejaron de responder. Inténtalo de nuevo.",
+      "cancelButton": {
+        "label": "Cancelar"
+      },
+      "cancelFailed": {
+        "toast": "No se pudieron cancelar las comprobaciones. Inténtalo de nuevo."
       }
     },
     "connectorEdit": {

@@ -3452,6 +3452,12 @@
           },
           "viewDetails": {
             "tooltip": "Details anzeigen"
+          },
+          "failedToRun": {
+            "title": "Prüfungen konnten nicht ausgeführt werden"
+          },
+          "unavailable": {
+            "label": "Nicht verfügbar"
           }
         },
         "accountUnavailable": {
@@ -10814,6 +10820,13 @@
         "proceedButton": {
           "label": "Connector trotzdem erstellen"
         }
+      },
+      "runLost": "Die Prüfungen reagieren nicht mehr. Versuchen Sie es erneut.",
+      "cancelButton": {
+        "label": "Abbrechen"
+      },
+      "cancelFailed": {
+        "toast": "Die Prüfungen konnten nicht abgebrochen werden. Versuchen Sie es erneut."
       }
     },
     "connectorEdit": {

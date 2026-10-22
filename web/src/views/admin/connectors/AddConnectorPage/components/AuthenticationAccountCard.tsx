@@ -46,6 +46,7 @@ import { IconLoader } from "@opal/loaders";
 import { useUser } from "@/providers/UserProvider";
 import { hasPermission } from "@/lib/permissions/utils";
 import { Permission } from "@/lib/types";
+import { fetchErrorDetail } from "@/lib/fetcher";
 
 interface DetailRowProps {
   label: string;
@@ -86,8 +87,8 @@ interface AuthenticationAccountCardProps {
   /** Whether the connector will use this account. */
   selected: boolean;
   /**
-   * Whether the account can be picked: it works in the realm the form names.
-   * One that cannot is disabled.
+   * Whether the account can be picked: it works in the realm the form names,
+   * and the user may use it. One that cannot is disabled.
    */
   selectable: boolean;
   /**
@@ -109,8 +110,11 @@ interface AuthenticationAccountCardProps {
   onDetailsOpenChange: (open: boolean) => void;
   /** The account's stored check report, or null if it was never checked. */
   checkReport: CredentialCheckReport | null;
-  /** Starts the checks on this account; resolves once the run is queued. */
-  onRerunChecks: () => Promise<void>;
+  /**
+   * Starts the checks on this account; resolves once the run is queued.
+   * Without it, the details offer no re-run.
+   */
+  onRerunChecks?: () => Promise<void>;
   /** Locks sharing with groups, which needs the Business plan. */
   groupsLocked: boolean;
   /**
@@ -160,12 +164,15 @@ export default function AuthenticationAccountCard({
     ? formatDateTimeLog(lastChecked)
     : null;
 
-  async function rerunChecks() {
+  const failedToRun: boolean =
+    !running && checkReport?.run_status === "failed_to_run";
+
+  async function rerunChecks(rerun: () => Promise<void>) {
     setStarting(true);
     try {
-      await onRerunChecks();
-    } catch {
-      toast.error(t("rerunFailed.toast"));
+      await rerun();
+    } catch (error) {
+      toast.error(fetchErrorDetail(error) ?? t("rerunFailed.toast"));
     } finally {
       setStarting(false);
     }
@@ -321,7 +328,9 @@ export default function AuthenticationAccountCard({
     return (
       <div className="p-1.5">
         <Text font="secondary-body" color="text-03">
-          {t("unsupportedRealm.label")}
+          {credential.usable
+            ? t("unsupportedRealm.label")
+            : t("unavailable.label")}
         </Text>
       </div>
     );
@@ -380,9 +389,11 @@ export default function AuthenticationAccountCard({
                 <Section gap={3} alignItems="stretch" width="full">
                   <ContentAction
                     title={
-                      checkedAt
-                        ? t("lastTested.title", { date: checkedAt })
-                        : t("notTested.title")
+                      failedToRun
+                        ? t("failedToRun.title")
+                        : checkedAt
+                          ? t("lastTested.title", { date: checkedAt })
+                          : t("notTested.title")
                     }
                     description={t("details.description")}
                     sizePreset="main-ui"
@@ -417,16 +428,18 @@ export default function AuthenticationAccountCard({
                           }
                           onClick={() => setConfirmingDelete(true)}
                         />
-                        <Button
-                          prominence="secondary"
-                          // The label holds still while the checks run; only
-                          // the icon turns into a spinner.
-                          icon={running ? IconLoader : SvgPlay}
-                          disabled={running}
-                          onClick={rerunChecks}
-                        >
-                          {t("rerunButton.label")}
-                        </Button>
+                        {onRerunChecks && (
+                          <Button
+                            prominence="secondary"
+                            // The label holds still while the checks run;
+                            // only the icon turns into a spinner.
+                            icon={running ? IconLoader : SvgPlay}
+                            disabled={running}
+                            onClick={() => void rerunChecks(onRerunChecks)}
+                          >
+                            {t("rerunButton.label")}
+                          </Button>
+                        )}
                       </Section>
                     }
                   />
@@ -550,6 +563,13 @@ export default function AuthenticationAccountCard({
                   />
                 )}
               </div>
+              {!selectable && credential.refusal_reason !== null && (
+                <div className="ps-5.5 pt-2">
+                  <Text font="secondary-body" color="text-03">
+                    {credential.refusal_reason}
+                  </Text>
+                </div>
+              )}
             </Section>
             <Section
               alignItems="end"

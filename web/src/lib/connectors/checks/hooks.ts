@@ -8,7 +8,7 @@ import { IconLoader } from "@opal/loaders";
 import type { IconFunctionComponent, IconProps } from "@opal/types";
 import useSWR, { type SWRResponse, useSWRConfig } from "swr";
 import { useFormikContext } from "formik";
-import { errorHandlingFetcher } from "@/lib/fetcher";
+import { errorHandlingFetcher, fetchErrorDetail } from "@/lib/fetcher";
 import {
   cancelDraftCheckRun,
   fetchDraftCheckPlan,
@@ -52,6 +52,9 @@ import type { ConfigurableSources } from "@/lib/connectors/types/source";
 import type { AccessType } from "@/lib/types";
 
 const RUNNING_POLL_INTERVAL_MS = 1500;
+// The server keeps a draft run for 30 minutes (`DRAFT_RUN_TTL_SECONDS`); a
+// run still "running" after that, plus a margin, has stopped responding.
+export const DRAFT_RUN_CLIENT_DEADLINE_MS = 31 * 60 * 1000;
 
 /**
  * One add-connector form's check session, kept in the SWR cache so every
@@ -72,6 +75,10 @@ interface ConnectorChecksSession {
   requesting: boolean;
   /** The last start request failed. */
   startFailed: boolean;
+  /** The server's reason for that failure, when it gave one. */
+  startFailureDetail: string | null;
+  /** When the latest run was accepted (ms since epoch); its polls stop after a deadline. */
+  startedAt: number | null;
   /** Increments per start, so only the newest request applies its result. */
   request: number;
   /** The next start runs every check again, cached results included. */
@@ -235,7 +242,25 @@ export interface UseConnectorChecksResult {
   rerun: () => void;
   /** Starts a run for the current form, reusing cached results. */
   refresh: () => void;
+  /**
+   * Why the checks failed to run, when known: the server's reason for
+   * refusing the start, else `runLost`. `null` with neither.
+   */
+  failure: ChecksFailure | null;
+  /**
+   * Stops the running run, and the checks go back to their start prompt.
+   * Rejects when the stop fails. `null` unless a started run is running.
+   */
+  cancel: (() => Promise<void>) | null;
 }
+
+/**
+ * Why a run failed to run. `refused`: the server refused the start, with its
+ * reason. `lost`: polling the run failed or passed the deadline.
+ */
+export type ChecksFailure =
+  | { kind: "refused"; detail: string }
+  | { kind: "lost" };
 
 /**
  * The capability checks for the unsaved add-connector form of `source`. The
@@ -283,14 +308,31 @@ export function useConnectorChecks({
   const { data: plan } = useConnectorCheckPlan(source, accessType, formState);
 
   const runId: string | null = session?.runId ?? null;
-  const { data: run } = useSWR<DraftCheckRunSnapshot>(
+  const startedAt: number | null = session?.startedAt ?? null;
+  const { data: run, error: runError } = useSWR<DraftCheckRunSnapshot>(
     runId ? SWR_KEYS.connectorCheckRun(runId) : null,
-    errorHandlingFetcher,
+    async (url: string) => {
+      if (
+        startedAt !== null &&
+        Date.now() > startedAt + DRAFT_RUN_CLIENT_DEADLINE_MS
+      ) {
+        throw new Error("Capability check run passed its client deadline");
+      }
+      return errorHandlingFetcher<DraftCheckRunSnapshot>(url);
+    },
     {
+      // An error (e.g. the expired run's 404) keeps the last snapshot, so
+      // polling and retries stop there instead of spinning on it.
       refreshInterval: (latest) =>
         latest?.status === "running" ? RUNNING_POLL_INTERVAL_MS : 0,
+      shouldRetryOnError: false,
     }
   );
+  // Polling broke while the run still read as running.
+  const runLost: boolean =
+    runId !== null &&
+    runError !== undefined &&
+    !(run && run.run_id === runId && run.status !== "running");
 
   // Results count only for the credential and bound fields they ran with.
   const current: boolean = !!session && session.ranWith === bindingKey;
@@ -311,6 +353,7 @@ export function useConnectorChecks({
     if (run && run.run_id === runId && run.status === "superseded") {
       return "notStarted";
     }
+    if (runLost) return "failedToRun";
     if (!snapshot || snapshot.status === "running") return "running";
     if (snapshot.status === "failed_to_run") return "failedToRun";
     return checks.some(
@@ -347,7 +390,8 @@ export function useConnectorChecks({
     !session.startFailed &&
     session.ranWithForm === formKey &&
     snapshot !== null &&
-    snapshot.status !== "failed_to_run";
+    snapshot.status !== "failed_to_run" &&
+    !runLost;
   const createReady: boolean =
     formUnlocked &&
     (!applicable.some((check) => check.required) ||
@@ -370,6 +414,8 @@ export function useConnectorChecks({
           ranWithForm: formKey,
           requesting: true,
           startFailed: false,
+          startFailureDetail: null,
+          startedAt: null,
           request,
           rerunAll: false,
           heldUnlock: formUnlocked,
@@ -425,6 +471,7 @@ export function useConnectorChecks({
         const current: boolean = await settle((session) => ({
           ...session,
           runId: accepted.run_id,
+          startedAt: Date.now(),
           requesting: false,
         }));
         if (!current) {
@@ -432,11 +479,12 @@ export function useConnectorChecks({
           // started, so nothing reads it and no reset could cancel it.
           cancelDraftCheckRun(accepted.run_id).catch(() => undefined);
         }
-      } catch {
+      } catch (error) {
         await settle((current) => ({
           ...current,
           requesting: false,
           startFailed: true,
+          startFailureDetail: fetchErrorDetail(error),
         }));
       }
     },
@@ -457,6 +505,35 @@ export function useConnectorChecks({
       mutate,
     ]
   );
+
+  const cancel = useCallback(async () => {
+    if (runId === null) return;
+    try {
+      await cancelDraftCheckRun(runId);
+    } catch (error) {
+      // The run may have ended meanwhile; show what it holds now.
+      await mutate(SWR_KEYS.connectorCheckRun(runId));
+      throw error;
+    }
+    // Drops the run; a newer start request still applies its own.
+    await mutate<ConnectorChecksSession>(
+      sessionKey,
+      (latest) =>
+        latest && latest.runId === runId
+          ? { ...latest, runId: null, startedAt: null }
+          : latest,
+      { revalidate: false }
+    );
+  }, [runId, sessionKey, mutate]);
+
+  const failure: ChecksFailure | null = (() => {
+    if (status !== "failedToRun") return null;
+    if (session?.startFailed) {
+      const detail: string | null = session.startFailureDetail;
+      return detail === null ? null : { kind: "refused", detail };
+    }
+    return runLost ? { kind: "lost" } : null;
+  })();
 
   return {
     status,
@@ -491,6 +568,11 @@ export function useConnectorChecks({
     begin: () => void start("none"),
     rerun: () => void start("all"),
     refresh: () => void start("none"),
+    failure,
+    cancel:
+      status === "running" && runId !== null && !session?.requesting
+        ? cancel
+        : null,
   };
 }
 
@@ -529,6 +611,8 @@ export function useResetChecksOnCredentialChange({
         ranWithForm: null,
         requesting: false,
         startFailed: false,
+        startFailureDetail: null,
+        startedAt: null,
         request: (session?.request ?? 0) + 1,
         rerunAll: true,
         heldUnlock: false,

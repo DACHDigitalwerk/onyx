@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@tests/setup/test-utils";
 import userEvent from "@testing-library/user-event";
+import type { ComponentProps } from "react";
 import AuthenticationAccountCard from "@/views/admin/connectors/AddConnectorPage/components/AuthenticationAccountCard";
 import type { SimilarCredential } from "@/lib/credentials/types";
 import { ValidSources } from "@/lib/connectors/types/source";
@@ -22,9 +23,16 @@ const CREDENTIAL: SimilarCredential = {
   time_updated: "2026-10-01T00:00:00Z",
   is_owner: true,
   usages: [],
+  usable: true,
+  refusal_reason: null,
 };
 
-function renderCard(overrides: Partial<SimilarCredential> = {}) {
+type CardProps = ComponentProps<typeof AuthenticationAccountCard>;
+
+function renderCard(
+  overrides: Partial<SimilarCredential> = {},
+  cardProps: Partial<CardProps> = {}
+) {
   const props = {
     onSelect: jest.fn(),
     onDeselect: jest.fn(),
@@ -48,10 +56,60 @@ function renderCard(overrides: Partial<SimilarCredential> = {}) {
       onRerunChecks={jest.fn().mockResolvedValue(undefined)}
       groupsLocked={false}
       onSaveAccount={props.onSaveAccount}
+      {...cardProps}
     />
   );
   return props;
 }
+
+describe("AuthenticationAccountCard checks", () => {
+  it("offers Re-run Checks only when given a re-run", () => {
+    renderCard({}, { detailsOpen: true, onRerunChecks: undefined });
+    expect(screen.queryByRole("button", { name: /Re-run Checks/ })).toBeNull();
+  });
+
+  it("offers Re-run Checks when given a re-run", () => {
+    renderCard({}, { detailsOpen: true });
+    expect(
+      screen.getByRole("button", { name: /Re-run Checks/ })
+    ).toBeInTheDocument();
+  });
+
+  it("says when the last run failed to run", () => {
+    renderCard(
+      {},
+      {
+        detailsOpen: true,
+        checkReport: {
+          credential_id: 7,
+          connector_id: null,
+          run_status: "failed_to_run",
+          run_started_at: null,
+          report: null,
+          progress: null,
+          time_updated: "2026-10-01T00:00:00Z",
+        },
+      }
+    );
+    expect(screen.getByText("Checks Failed to Run")).toBeInTheDocument();
+  });
+});
+
+describe("AuthenticationAccountCard unusable account", () => {
+  it("shows why a shared account cannot be picked, and does not pick it", async () => {
+    const user = userEvent.setup({ delay: null });
+    const reason = "Credential 7 is shared with you.";
+    const { onSelect } = renderCard(
+      { usable: false, refusal_reason: reason },
+      { selectable: false }
+    );
+
+    expect(screen.getByText(reason)).toBeInTheDocument();
+    expect(screen.getByText("Not Available")).toBeInTheDocument();
+    await user.click(screen.getByText(reason));
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+});
 
 describe("AuthenticationAccountCard rename", () => {
   it("renames the account in place without picking it", async () => {
