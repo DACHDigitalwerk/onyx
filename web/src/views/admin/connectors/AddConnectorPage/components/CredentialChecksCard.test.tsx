@@ -2,7 +2,7 @@
  * The mounted checks card starts a run only from Start Checks or Re-run
  * Checks: a form change after a run flags the change and waits. Check rows
  * read the result line the backend gives, with the guide's state words as the
- * fallback.
+ * fallback, and keep every guidance text in their tooltip.
  */
 import { Formik, useFormikContext, type FormikContextType } from "formik";
 import {
@@ -210,4 +210,30 @@ test("reads incomplete and legacy indeterminate checks as Incomplete", () => {
 
   expect(screen.getByText("2 Incomplete")).toBeInTheDocument();
   expect(screen.getAllByText("Incomplete")).toHaveLength(2);
+});
+
+test("a failed row's tooltip gives both the description and the repair step", async () => {
+  const user = setupUser();
+  render(
+    <CheckLineGroups
+      lines={[
+        line({
+          state: "failed",
+          summary: "Invalid channel pattern: [a",
+          description: "Indexing cannot filter channels with this pattern.",
+          remediation: "Fix the channel regex in the connector settings.",
+        }),
+      ]}
+    />
+  );
+
+  await user.hover(screen.getByRole("button", { name: "More information" }));
+
+  const tooltip = await screen.findByRole("tooltip");
+  expect(tooltip).toHaveTextContent(
+    "Indexing cannot filter channels with this pattern."
+  );
+  expect(tooltip).toHaveTextContent(
+    "Fix the channel regex in the connector settings."
+  );
 });

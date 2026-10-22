@@ -157,20 +157,26 @@ function CheckLog({ check }: CheckLogProps) {
   const { variant, icon, detail, font, color } = CHECK_LOGS[check.state];
   // A failed required check blocks the form or Create, so its line is heavy.
   const blocking = check.state === "failed" && check.required;
-  // What happened to a failed or incomplete check and what is needed, with
-  // a link to the docs. Results from before descriptions give remediation.
-  const detailText: string | null = check.description ?? check.remediation;
+  // What happened to a failed or incomplete check, how to repair it, and a
+  // link to the docs. The description and the repair step are separate texts.
+  const guidanceLines: string[] = [
+    ...new Set(
+      [check.description, check.remediation].filter(
+        (text): text is string => text !== null
+      )
+    ),
+  ].map((text) => escapeMarkdown(text));
+  if (check.docs_link !== null) {
+    guidanceLines.push(
+      `[${escapeMarkdown(t("docsLink.label"))}](${check.docs_link})`
+    );
+  }
   const guidance: RichStr | undefined =
     (check.state === "failed" ||
       check.state === "incomplete" ||
       check.state === "indeterminate") &&
-    (detailText !== null || check.docs_link !== null)
-      ? markdown(
-          ...(detailText !== null ? [escapeMarkdown(detailText)] : []),
-          ...(check.docs_link !== null
-            ? [`[${escapeMarkdown(t("docsLink.label"))}](${check.docs_link})`]
-            : [])
-        )
+    guidanceLines.length > 0
+      ? markdown(...guidanceLines)
       : undefined;
 
   const logVariant: LogVariant = blocking ? "error-heavy" : variant;
