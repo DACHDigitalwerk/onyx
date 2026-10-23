@@ -4,7 +4,7 @@
 
 A small coloured label for status, category or metadata: an icon and a title in a tinted pill, drawn by a `Content` (`secondary` preset, `body` variant, so the title is `secondary-body`). It does nothing on click. 1rem tall at `sm`, 1.375rem at `md`.
 
-For a removable, clickable or chip-field pill, use [`Chip`](../chip/README.md). For a hover tooltip, wrap the tag in `Tooltip`: `Tag` forwards its ref and DOM attributes to its root.
+For a removable, clickable or chip-field pill, use [`Chip`](../chip/README.md). For a hover tooltip, wrap the tag in `Tooltip`. `Tag` takes no DOM attributes, but its ref and the props a wrapping `Tooltip` or popover trigger injects still reach its root.
 
 | Variant   | Background        | Icon             | Label            | Use                                     |
 | --------- | ----------------- | ---------------- | ---------------- | --------------------------------------- |

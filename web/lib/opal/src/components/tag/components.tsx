@@ -1,11 +1,7 @@
 "use client";
 
 import "@opal/components/tag/styles.css";
-import type {
-  IconFunctionComponent,
-  RichStr,
-  WithoutStyles,
-} from "@opal/types";
+import type { IconFunctionComponent, RichStr } from "@opal/types";
 import { TAG_COLORS, type TagColor } from "@opal/components/tag/colors";
 import { Content } from "@opal/layouts";
 import { cn } from "@opal/utils";
@@ -23,12 +19,10 @@ type TagSize = "sm" | "md";
  */
 type TagVariant = "default" | "status" | "count";
 
-// DOM attributes pass through to the root, so a Tooltip or popover trigger
-// can wrap a Tag.
-type TagProps = Omit<
-  WithoutStyles<React.HTMLAttributes<HTMLDivElement>>,
-  "title" | "color" | "children"
-> & {
+// Takes no DOM attributes. The ref and anything a wrapping Tooltip or
+// popover trigger injects at runtime still reach the root, so either can
+// wrap a Tag.
+type TagProps = {
   ref?: React.Ref<HTMLDivElement>;
 
   /** Optional icon component. */
