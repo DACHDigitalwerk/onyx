@@ -465,6 +465,7 @@ export default function AuthenticationAccountCard({
                   tooltip={
                     canEditAccount ? undefined : t("shareLocked.tooltip")
                   }
+                  align="follow"
                 >
                   <div className="p-2">
                     <ShareAccountSelect
