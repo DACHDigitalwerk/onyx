@@ -26,11 +26,6 @@ export interface GroupShareLockedRow {
   memberCount?: number;
   /** Why the row is fixed, e.g. "Always shared". */
   note: string;
-  /**
-   * A fixed value shown where the picked groups' control starts, with the
-   * note at the end, e.g. the role the row always has.
-   */
-  role?: React.ReactNode;
 }
 
 interface GroupShareRow {
@@ -40,8 +35,6 @@ interface GroupShareRow {
   memberCount?: number;
   /** Set on a locked row. */
   note?: string;
-  /** Set on a locked row with a fixed value before its note. */
-  role?: React.ReactNode;
   /** Set on a picked group, which the remove button drops. */
   groupId?: number;
 }
@@ -198,14 +191,12 @@ export default function GroupShareList({
           {
             kind: "display",
             id: "trailing",
-            // Wide enough for a role select, and for a locked row's role and
-            // note on one line.
-            width: { weight: 40 },
+            width: { weight: 20 },
             hideable: false,
             alignment: "right",
             cell: (row) => {
               if (row.note) {
-                const note = (
+                return (
                   <Content
                     icon={row.icon}
                     title={row.note}
@@ -214,21 +205,6 @@ export default function GroupShareList({
                     orientation="reverse"
                     color="muted"
                   />
-                );
-                // The role sits where a picked group's select shows its
-                // value: the padding matches the select's border and inset.
-                return row.role === undefined ? (
-                  note
-                ) : (
-                  <Section
-                    flexDirection="row"
-                    justifyContent="between"
-                    alignItems="center"
-                    padding={1.75}
-                  >
-                    {row.role}
-                    {note}
-                  </Section>
                 );
               }
               const { groupId } = row;
