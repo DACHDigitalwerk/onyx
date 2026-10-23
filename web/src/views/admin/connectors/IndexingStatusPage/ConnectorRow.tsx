@@ -297,7 +297,6 @@ export default function ConnectorRow({
                           })}
                           color="orange"
                           variant="count"
-                          font="secondary-body"
                         />
                       )}
                     </Section>

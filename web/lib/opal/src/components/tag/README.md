@@ -4,7 +4,7 @@
 
 A small colored label used to annotate items with status, category, or metadata. Two types, matching the Figma `Tag` component:
 
-- **Passive** (default): metadata label. 1rem tall with `font-figure-small-value` at `sm`, 1.375rem with `secondary-body` at `md`.
+- **Passive** (default): metadata label. 1rem tall at `sm`, 1.375rem at `md`. The icon, title, value and warning are a `Content` (`secondary` preset) at both sizes.
 - **Editable** (`onRemove` set): remove button, gray hover, and a dark focus-within treatment chip fields use as the keyboard-selection state before deleting a tag.
 - **Clickable** (`onClick` set): renders a `button` with the tag metrics. As a `Popover.Trigger` or `Dropdown.Trigger` child it inverts (`background-tint-inverted-03`, `text-inverted-05`) while `data-state="open"` or `aria-expanded="true"`. An icon with its own `iconColor` keeps that color.
 
@@ -16,7 +16,6 @@ The passive look comes in three variants:
 | `status`  | the color's `-01` | the color's text | `text-04`        | Status pills (Indexing, Paused, Failed) |
 | `count`   | none              | the color's text | `text-04`        | Warning and failure counts in rows      |
 
-Status tags use `font="secondary-body"`; `sm` keeps `figure-small-value` by default.
 
 ## Props
 
@@ -29,14 +28,13 @@ Status tags use `font="secondary-body"`; `sm` keeps `figure-small-value` by defa
 | `onClick`          | `MouseEventHandler<HTMLButtonElement>` | —                 | Renders the tag as a button; inverts while an attached popover or dropdown is open. Not allowed with `onRemove`. `ref` is then a `Ref<HTMLButtonElement>`; otherwise a `Ref<HTMLDivElement>`       |
 | `icon`             | `IconFunctionComponent`                | —                 | Optional icon before the title                                                                                                                                                                     |
 | `size`             | `"sm" \| "md"`                         | `"sm"`            | Size variant (Figma Small / Regular)                                                                                                                                                               |
-| `font`             | `TextFont`                             | Size/type default | Override label and value typography to match the surrounding surface                                                                                                                               |
 | `titleColor`       | `Exclude<TextColor, "inherit">`        | per `color`       | Overrides the title colour only, as `Content`'s `titleColor` does; `color` still picks the background, icon and value. Yields to an open clickable tag, an editable tag's focus and a disabled tag |
 | `removeInTabOrder` | `boolean`                              | `true`            | Editable only: whether the remove button is a Tab stop. Chip fields set it off and walk chips with the arrows                                                                                      |
 | `onRemove`         | `() => void`                           | —                 | Switches to the editable type and renders the remove button                                                                                                                                        |
 | `disabled`         | `boolean`                              | `false`           | Editable only: dims the tag, hides the remove button                                                                                                                                               |
 | `value`            | `string \| RichStr`                    | —                 | Secondary text after the title, in `text-03`                                                                                                                                                       |
-| `truncate`         | `boolean`                              | `false`           | Cap the title at 120px (`sm`) / 160px (`md`) with an ellipsis. Editable tags are always capped                                                                                                     |
-| `tooltip`          | `string`                               | —                 | Hover tooltip. Defaults to string titles on editable or truncated tags                                                                                                                             |
+| `truncate`         | `boolean`                              | `false`           | Cap the title at 120px (`sm`) / 160px (`md`) with an ellipsis; a cut title shows in full on hover. Editable tags are always capped                                                                  |
+| `tooltip`          | `string`                               | —                 | Hover tooltip                                                                                                                                                                                      |
 | `error`            | `boolean`                              | `false`           | Warning indicator after the title (no Figma variant, exists for chip-field validation)                                                                                                             |
 
 ### `TagColor`
@@ -51,7 +49,7 @@ Status tags use `font="secondary-body"`; `sm` keeps `figure-small-value` by defa
 | `amber`  | `theme-amber-01`     | `theme-amber-05`                           |
 | `orange` | `status-warning-01`  | `status-warning-05`                        |
 | `red`    | `status-error-01`    | `status-error-05`                          |
-| `gray`   | `background-tint-02` | `text-03` (passive) / `text-04` (editable) |
+| `gray`   | `background-tint-02` | `text-03` |
 | `white`  | `background-tint-00` | `text-04`, for a pill on a tinted row      |
 
 ## Usage Examples

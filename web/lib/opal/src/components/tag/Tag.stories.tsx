@@ -105,40 +105,20 @@ export const TruncatedWithTooltip: Story = {
 export const Status: Story = {
   render: () => (
     <div className="flex items-center gap-2">
-      <Tag
-        icon={SvgRefreshCw}
-        title="Indexing"
-        color="blue"
-        variant="status"
-        font="secondary-body"
-      />
+      <Tag icon={SvgRefreshCw} title="Indexing" color="blue" variant="status" />
       <Tag
         icon={SvgCheckCircle}
         title="Synced"
         color="green"
         variant="status"
-        font="secondary-body"
       />
-      <Tag
-        icon={SvgPause}
-        title="Paused"
-        color="amber"
-        variant="status"
-        font="secondary-body"
-      />
-      <Tag
-        icon={SvgAlertCircle}
-        title="Failed"
-        color="red"
-        variant="status"
-        font="secondary-body"
-      />
+      <Tag icon={SvgPause} title="Paused" color="amber" variant="status" />
+      <Tag icon={SvgAlertCircle} title="Failed" color="red" variant="status" />
       <Tag
         icon={SvgAlertTriangle}
         title="3 warnings"
         iconColor="orange"
         variant="status"
-        font="secondary-body"
       />
     </div>
   ),
@@ -163,7 +143,6 @@ export const ClickableTrigger: Story = {
             title="Stack Trace"
             iconColor="red"
             variant="status"
-            font="secondary-body"
             onClick={() => {}}
           />
         </Popover.Trigger>
@@ -177,7 +156,6 @@ export const ClickableTrigger: Story = {
             icon={SvgAlertTriangle}
             title="3 failed"
             variant="status"
-            font="secondary-body"
             onClick={() => {}}
           />
         </Popover.Trigger>

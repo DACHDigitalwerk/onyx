@@ -7,8 +7,10 @@ import type {
   WithoutStyles,
 } from "@opal/types";
 import type { TextColor } from "@onyx-ai/shared/contracts";
-import { Text, Tooltip, type TextFont } from "@opal/components";
-import { SvgAlertTriangle, SvgX } from "@opal/icons";
+import { Tooltip } from "@opal/components";
+import { toPlainString } from "@opal/components/text/InlineMarkdown";
+import { SvgX } from "@opal/icons";
+import { Content } from "@opal/layouts";
 import { cn } from "@opal/utils";
 import { TAG_COLORS, type TagColor } from "@opal/components/tag/colors";
 import { useOpalStrings } from "@opal/strings";
@@ -48,9 +50,6 @@ type TagBaseProps = Omit<
   /** Size variant. Default: `"sm"`. */
   size?: TagSize;
 
-  /** Optional typography override for the surrounding surface. */
-  font?: TextFont;
-
   /**
    * Overrides the title colour only; `color` still picks the background, the
    * icon and the value. Holds at rest and yields to an open clickable tag's
@@ -79,12 +78,12 @@ type TagBaseProps = Omit<
   value?: string | RichStr;
 
   /**
-   * Cap the title width with an ellipsis (120px `sm`, 160px `md`).
-   * Editable tags are always capped, per the Figma spec.
+   * Cap the title width with an ellipsis (120px `sm`, 160px `md`); a cut
+   * title shows in full on hover. Editable tags are always capped.
    */
   truncate?: boolean;
 
-  /** Hover tooltip. Defaults to string titles on editable or truncated tags. */
+  /** Hover tooltip. */
   tooltip?: string;
 
   /** Warning indicator after the title. */
@@ -127,13 +126,12 @@ const TAG_REMOVE_CLASS = "opal-auxiliary-tag-remove";
 function Tag(props: TagProps) {
   const {
     ref: _ref,
-    icon: Icon,
+    icon,
     title,
     color = "gray",
     variant = "default",
     iconColor,
     size = "sm",
-    font: fontOverride,
     titleColor,
     onRemove,
     removeInTabOrder = true,
@@ -148,30 +146,11 @@ function Tag(props: TagProps) {
   const strings = useOpalStrings();
   const config = TAG_COLORS[color];
   const editable = onRemove !== undefined;
-  const capped = editable || truncate;
-
-  const font =
-    fontOverride ??
-    (size === "sm"
-      ? "figure-small-value"
-      : editable
-        ? "main-ui-body"
-        : "secondary-body");
-
-  const neutralLabel = variant !== "default" || (editable && color === "gray");
-  // Editable gray reads in text-04 per the Figma spec. TAG_COLORS.gray
-  // (text-03) stays for the passive metadata tag.
-  const textClass = neutralLabel ? "text-text-04" : config.text;
-  const iconClass = iconColor
-    ? TAG_COLORS[iconColor].text
-    : variant === "default"
-      ? textClass
-      : config.text;
 
   const className = cn(
     "opal-auxiliary-tag",
     variant !== "count" && config.bg,
-    textClass
+    variant === "default" ? config.text : "text-text-04"
   );
   const dataAttrs = {
     "data-size": size,
@@ -179,45 +158,29 @@ function Tag(props: TagProps) {
     "data-variant": variant,
     "data-color": color,
     "data-disabled": (editable && disabled) || undefined,
+    "data-capped": editable || truncate || undefined,
+    "data-fixed-color": iconColor !== undefined || undefined,
   };
+  // SAFETY: CSSProperties has no index for custom properties; the object
+  // holds only the one custom property the stylesheet reads.
+  const iconColorStyle = {
+    "--opal-tag-icon-base": TAG_COLORS[iconColor ?? color].fg,
+  } as React.CSSProperties;
 
   const content = (
     <>
-      {Icon && (
-        <div className="opal-auxiliary-tag-icon-container">
-          <Icon
-            className={cn("opal-auxiliary-tag-icon", iconClass)}
-            data-fixed-color={iconColor !== undefined || undefined}
-          />
-        </div>
-      )}
-      <span className="opal-auxiliary-tag-text">
-        <span
-          className={cn(
-            "opal-auxiliary-tag-label",
-            capped && "opal-auxiliary-tag-capped"
-          )}
-          style={
-            titleColor
-              ? ({
-                  "--tag-title-color": `var(--${titleColor})`,
-                } as React.CSSProperties)
-              : undefined
-          }
-        >
-          <Text font={font} color="inherit" wordWrap="whitespace-nowrap">
-            {title}
-          </Text>
-        </span>
-        {value !== undefined && (
-          <span className="opal-auxiliary-tag-value">
-            <Text font={font} color="inherit" wordWrap="whitespace-nowrap">
-              {value}
-            </Text>
-          </span>
-        )}
-      </span>
-      {error && <SvgAlertTriangle className="opal-auxiliary-tag-error-icon" />}
+      <Content
+        sizePreset="secondary"
+        variant="section"
+        width="fit"
+        color="interactive"
+        icon={icon}
+        title={title}
+        titleMaxLines={1}
+        titleColor={titleColor}
+        suffix={value === undefined ? undefined : toPlainString(value)}
+        auxIcon={error ? "warning" : undefined}
+      />
       {editable &&
         !disabled && (
           // raw-ok: the remove control is 16px (md) / 12px (sm), and Button's fixed sizes bottom out at 16px, so the tag owns its remove sizing
@@ -248,6 +211,7 @@ function Tag(props: TagProps) {
       type="button"
       {...rest}
       className={className}
+      style={iconColorStyle}
       {...dataAttrs}
       data-clickable="true"
       onClick={props.onClick}
@@ -255,16 +219,19 @@ function Tag(props: TagProps) {
       {content}
     </button>
   ) : (
-    <div ref={props.ref} {...rest} className={className} {...dataAttrs}>
+    <div
+      ref={props.ref}
+      {...rest}
+      className={className}
+      style={iconColorStyle}
+      {...dataAttrs}
+    >
       {content}
     </div>
   );
 
-  const tooltipText =
-    tooltip ?? (capped && typeof title === "string" ? title : undefined);
-
   return (
-    <Tooltip tooltip={tooltipText} side="top">
+    <Tooltip tooltip={tooltip} side="top">
       {tag}
     </Tooltip>
   );

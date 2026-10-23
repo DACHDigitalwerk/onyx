@@ -211,7 +211,6 @@ function CheckLog({ check, onSkipCheck, onRunCheck }: CheckLogProps) {
       title={t("required.label")}
       color="white"
       variant="status"
-      font="secondary-action"
       titleColor="text-03"
     />
   ) : undefined;

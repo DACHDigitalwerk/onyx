@@ -249,7 +249,6 @@ export function RunWarningsTag({ run }: RunWarningsTagProps) {
       })}
       color="orange"
       variant="count"
-      font="secondary-body"
     />
   );
 }
