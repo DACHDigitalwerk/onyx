@@ -7,7 +7,9 @@ import type {
   WithoutStyles,
 } from "@opal/types";
 import type { TextColor } from "@onyx-ai/shared/contracts";
-import { Tooltip } from "@opal/components";
+import { Button, Tooltip } from "@opal/components";
+import { resolveTriggerInteraction } from "@opal/components/buttons/trigger-interaction";
+import { Disabled, Interactive } from "@opal/core";
 import { toPlainString } from "@opal/components/text/InlineMarkdown";
 import { SvgX } from "@opal/icons";
 import { Content } from "@opal/layouts";
@@ -38,41 +40,23 @@ type TagBaseProps = Omit<
   /** Tag label text. */
   title: string | RichStr;
 
-  /** Color variant. Default: `"gray"`. */
-  color?: TagColor;
-
-  /** Look of the passive tag. Default: `"default"`. */
+  /**
+   * Look of the tag. A clickable or editable tag reads `"count"` as no
+   * background, and the others as the gray fill. Default: `"default"`.
+   */
   variant?: TagVariant;
 
-  /** Icon color, when it differs from `color` (a gray pill with an orange icon). */
+  /** Icon color, when it differs from the tag's (a gray pill with an orange icon). */
   iconColor?: TagColor;
 
   /** Size variant. Default: `"sm"`. */
   size?: TagSize;
 
   /**
-   * Overrides the title colour only; `color` still picks the background, the
-   * icon and the value. Holds at rest and yields to an open clickable tag's
-   * inverted colours and an editable tag's focus.
+   * Overrides the title colour only; the tag's colour still picks the
+   * background, the icon and the value.
    */
   titleColor?: Exclude<TextColor, "inherit">;
-
-  /**
-   * Switches to the editable tag (Figma Tag `Type=Editable`): remove button,
-   * gray hover, and the dark focus-within treatment chip fields use as the
-   * keyboard-selection state before deleting a tag.
-   */
-  onRemove?: () => void;
-
-  /**
-   * Editable only: whether the remove button is a Tab stop. A chip field
-   * walks its chips with the arrows and keeps Tab for leaving the field.
-   * @default true
-   */
-  removeInTabOrder?: boolean;
-
-  /** Editable only: dims the tag and hides the remove button. */
-  disabled?: boolean;
 
   /** Secondary text rendered after the title in `text-03`. */
   value?: string | RichStr;
@@ -83,33 +67,63 @@ type TagBaseProps = Omit<
    */
   truncate?: boolean;
 
-  /** Hover tooltip. */
+  /** Hover tooltip; on a disabled tag it explains why. */
   tooltip?: string;
 
   /** Warning indicator after the title. */
   error?: boolean;
 };
 
-/** Passive or editable tag: the root is a `div`. */
-type TagDivProps = TagBaseProps & {
+/** Passive tag: a coloured label, the root is a `div`. */
+type TagPassiveProps = TagBaseProps & {
   ref?: React.Ref<HTMLDivElement>;
+  /** Color variant. Only a passive tag has one. Default: `"gray"`. */
+  color?: TagColor;
+  /** Dims the whole tag. */
+  disabled?: boolean;
+  onClick?: never;
+  onRemove?: never;
+  removeInTabOrder?: never;
+};
+
+/**
+ * Editable tag (Figma Tag `Type=Editable`): a gray `Interactive` chip with a
+ * remove button, and the dark focus-within treatment chip fields use as the
+ * keyboard-selection state before deleting a tag.
+ */
+type TagEditableProps = TagBaseProps & {
+  ref?: React.Ref<HTMLDivElement>;
+  /** Always gray: an editable tag has no colour. */
+  color?: never;
+  /** Unset, the tag is a passive gray one. */
+  onRemove?: () => void;
+  /**
+   * Whether the remove button is a Tab stop. A chip field walks its chips
+   * with the arrows and keeps Tab for leaving the field.
+   * @default true
+   */
+  removeInTabOrder?: boolean;
+  /** Dims the whole tag and hides the remove button. */
+  disabled?: boolean;
   onClick?: never;
 };
 
 /**
- * Clickable tag: the root is a `button`. As a popover or dropdown trigger it
- * shows the inverted look while `data-state="open"` or `aria-expanded="true"`.
- * A clickable tag cannot be editable.
+ * Clickable tag: a gray `Interactive` button. As a popover or dropdown
+ * trigger it shows the hover look while open, as `Button` does.
  */
-type TagButtonProps = Omit<TagBaseProps, "disabled"> & {
-  /** Only an editable tag can be disabled; a trigger stays operable. */
-  disabled?: never;
+type TagButtonProps = TagBaseProps & {
   ref?: React.Ref<HTMLButtonElement>;
+  /** Always gray: a clickable tag has no colour. */
+  color?: never;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  /** A trigger stays operable. */
+  disabled?: never;
   onRemove?: never;
+  removeInTabOrder?: never;
 };
 
-type TagProps = TagDivProps | TagButtonProps;
+type TagProps = TagPassiveProps | TagEditableProps | TagButtonProps;
 
 function isClickableTag(props: TagProps): props is TagButtonProps {
   return props.onClick !== undefined;
@@ -119,22 +133,23 @@ function isClickableTag(props: TagProps): props is TagButtonProps {
 // Tag
 // ---------------------------------------------------------------------------
 
-// Class of the editable tag's remove control. Exported so composites (chip
-// fields) can target it for keyboard flows without a fragile string copy.
-const TAG_REMOVE_CLASS = "opal-auxiliary-tag-remove";
+// Attribute on the editable tag's remove button. Exported so composites
+// (chip fields) can target it for keyboard flows without a fragile string
+// copy.
+const TAG_REMOVE_ATTR = "data-opal-tag-remove";
 
 function Tag(props: TagProps) {
   const {
     ref: _ref,
     icon,
     title,
-    color = "gray",
+    color: _color,
     variant = "default",
     iconColor,
     size = "sm",
     titleColor,
     onRemove,
-    removeInTabOrder = true,
+    removeInTabOrder: _removeInTabOrder,
     disabled = false,
     value,
     truncate = false,
@@ -144,28 +159,37 @@ function Tag(props: TagProps) {
     ...rest
   } = props;
   const strings = useOpalStrings();
-  const config = TAG_COLORS[color];
   const editable = onRemove !== undefined;
+  const clickable = isClickableTag(props);
+  const interactive = editable || clickable;
+  const color: TagColor =
+    !interactive && props.color !== undefined ? props.color : "gray";
+  const config = TAG_COLORS[color];
 
-  const className = cn(
-    "opal-auxiliary-tag",
-    variant !== "count" && config.bg,
-    variant === "default" ? config.text : "text-text-04"
-  );
+  const className = interactive
+    ? "opal-auxiliary-tag"
+    : cn(
+        "opal-auxiliary-tag",
+        variant !== "count" && config.bg,
+        variant === "default" ? config.text : "text-text-04"
+      );
   const dataAttrs = {
     "data-size": size,
     "data-type": editable ? "editable" : undefined,
     "data-variant": variant,
-    "data-color": color,
-    "data-disabled": (editable && disabled) || undefined,
+    // Only a passive tag colours itself; Interactive colours the others.
+    "data-color": interactive ? undefined : color,
     "data-capped": editable || truncate || undefined,
     "data-fixed-color": iconColor !== undefined || undefined,
   };
   // SAFETY: CSSProperties has no index for custom properties; the object
   // holds only the one custom property the stylesheet reads.
-  const iconColorStyle = {
-    "--opal-tag-icon-base": TAG_COLORS[iconColor ?? color].fg,
-  } as React.CSSProperties;
+  const iconColorStyle =
+    !interactive || iconColor !== undefined
+      ? ({
+          "--opal-tag-icon-color": TAG_COLORS[iconColor ?? color].fg,
+        } as React.CSSProperties)
+      : undefined;
 
   const content = (
     <>
@@ -181,55 +205,105 @@ function Tag(props: TagProps) {
         suffix={value === undefined ? undefined : toPlainString(value)}
         auxIcon={error ? "warning" : undefined}
       />
-      {editable &&
-        !disabled && (
-          // raw-ok: the remove control is 16px (md) / 12px (sm), and Button's fixed sizes bottom out at 16px, so the tag owns its remove sizing
-          <button
-            type="button"
-            className={TAG_REMOVE_CLASS}
-            tabIndex={removeInTabOrder ? undefined : -1}
-            aria-label={
-              typeof title === "string"
-                ? strings.removeItem(title)
-                : strings.remove
-            }
-            onClick={(event) => {
-              event.stopPropagation();
-              onRemove();
-            }}
-          >
-            <SvgX />
-          </button>
-        )}
+      {editable && !disabled && (
+        <Button
+          // The literal of TAG_REMOVE_ATTR: JSX takes no computed names.
+          data-opal-tag-remove=""
+          icon={SvgX}
+          prominence="internal"
+          size="2xs"
+          tabIndex={props.removeInTabOrder === false ? -1 : undefined}
+          aria-label={
+            typeof title === "string"
+              ? strings.removeItem(title)
+              : strings.remove
+          }
+          onClick={(event) => {
+            event.stopPropagation();
+            onRemove();
+          }}
+        />
+      )}
     </>
   );
 
-  const tag = isClickableTag(props) ? (
-    // raw-ok: a tag-shaped trigger (Stack Trace, failed-entity pills) keeps the tag metrics, which no Button size matches
-    <button
-      ref={props.ref}
-      type="button"
-      {...rest}
-      className={className}
-      style={iconColorStyle}
-      {...dataAttrs}
-      data-clickable="true"
-      onClick={props.onClick}
-    >
-      {content}
-    </button>
-  ) : (
-    <div
-      ref={props.ref}
-      {...rest}
-      className={className}
-      style={iconColorStyle}
-      {...dataAttrs}
-    >
-      {content}
-    </div>
-  );
+  let tag: React.ReactNode;
+  if (clickable) {
+    // A popup trigger takes the hover look while open, as Button does.
+    const popup = rest["aria-haspopup"];
+    const isPopupTrigger =
+      popup !== undefined && popup !== false && popup !== "false";
+    const interaction = isPopupTrigger
+      ? resolveTriggerInteraction(undefined, rest)
+      : "rest";
+    const pressed = rest["aria-pressed"];
+    const button = (
+      <button
+        ref={props.ref}
+        type="button"
+        {...rest}
+        className={className}
+        style={iconColorStyle}
+        {...dataAttrs}
+      >
+        {content}
+      </button>
+    );
+    // A toggle (aria-pressed) is a filter chip: it shows its pressed state.
+    tag =
+      pressed !== undefined ? (
+        <Interactive.Stateful
+          variant="select-filter"
+          state={pressed === true || pressed === "true" ? "selected" : "empty"}
+          interaction={interaction}
+          type="button"
+          onClick={props.onClick}
+        >
+          {button}
+        </Interactive.Stateful>
+      ) : (
+        <Interactive.Stateless
+          variant="default"
+          prominence={variant === "count" ? "tertiary" : "secondary"}
+          interaction={interaction}
+          type="button"
+          onClick={props.onClick}
+        >
+          {button}
+        </Interactive.Stateless>
+      );
+  } else {
+    const root = (
+      <div
+        ref={props.ref}
+        {...rest}
+        className={className}
+        style={iconColorStyle}
+        {...dataAttrs}
+      >
+        {content}
+      </div>
+    );
+    tag = editable ? (
+      <Interactive.Stateless
+        variant="default"
+        prominence={variant === "count" ? "tertiary" : "secondary"}
+      >
+        {root}
+      </Interactive.Stateless>
+    ) : (
+      root
+    );
+  }
 
+  // A disabled tag dims as a whole; its tooltip says why.
+  if (disabled) {
+    return (
+      <Disabled disabled tooltip={tooltip} tooltipSide="top">
+        {tag}
+      </Disabled>
+    );
+  }
   return (
     <Tooltip tooltip={tooltip} side="top">
       {tag}
@@ -237,5 +311,5 @@ function Tag(props: TagProps) {
   );
 }
 
-export { Tag, TAG_REMOVE_CLASS, type TagProps, type TagSize, type TagVariant };
+export { Tag, TAG_REMOVE_ATTR, type TagProps, type TagSize, type TagVariant };
 export { TAG_COLORS, type TagColor } from "@opal/components/tag/colors";

@@ -4,14 +4,15 @@
    AuxiliaryTag
 
    A pill around a `Content` (secondary preset), which draws the icon, title,
-   value and warning. Passive (metadata) tag: fixed height of 1rem (sm) /
-   1.375rem (md).
+   value and warning. Passive (metadata) tag: coloured, fixed height of 1rem
+   (sm) / 1.375rem (md).
 
-   Editable tag ([data-type="editable"], Figma Tag Type=Editable): remove
-   button, gray hover, and a dark focus-within treatment used by chip fields
-   as the keyboard-selection state. A transparent border keeps the focus
-   border from shifting layout, so paddings are 1px smaller than the passive
-   ones.
+   Clickable and editable tags are gray `Interactive.Stateless` surfaces:
+   Interactive gives them their colours and states. The editable tag (Figma
+   Tag Type=Editable) adds a remove button and a dark focus-within treatment
+   chip fields use as the keyboard-selection state. Its transparent border
+   keeps the focus border from shifting layout, so its paddings are 1px
+   smaller than the passive ones.
    --------------------------------------------------------------------------- */
 
 .opal-auxiliary-tag {
@@ -20,9 +21,6 @@
   border-radius: 0.25rem;
   padding: 0 0.25rem;
   gap: 0;
-  /* --opal-tag-icon-base is set inline from the tag's colour; the states
-     below replace the icon colour without fighting the inline style. */
-  --opal-tag-icon-color: var(--opal-tag-icon-base);
 }
 
 .opal-auxiliary-tag[data-size="md"] {
@@ -34,10 +32,13 @@
 /* ---------------------------------------------------------------------------
    Content colours
 
-   The title takes the pill's text colour, or the `titleColor` override; the
-   icon takes --opal-tag-icon-color, set inline from the tag's colour. The
-   extra [data-color] outranks the `.interactive` Content rules, so a tag
-   inside an interactive row keeps its own colours.
+   A passive tag's title takes the pill's text colour, or the `titleColor`
+   override; its icon takes --opal-tag-icon-color, set inline from the tag's
+   colour. The extra [data-color] outranks the `.interactive` Content rules,
+   so a tag inside an interactive row keeps its own colours.
+
+   An interactive tag's Content follows Interactive's foregrounds, except an
+   icon whose colour the caller fixed with `iconColor`.
    --------------------------------------------------------------------------- */
 
 .opal-auxiliary-tag[data-color] > [data-content-color] {
@@ -45,26 +46,8 @@
   --content-foreground-icon: var(--opal-tag-icon-color);
 }
 
-/* An inverted or disabled tag drops the title override and shows its value
-   in the pill's colour: open, an editable tag's focus, or disabled. */
-.opal-auxiliary-tag[data-clickable]:is(
-    [data-state="open"],
-    [aria-expanded="true"]
-  )
-  > [data-content-color],
-.opal-auxiliary-tag[data-type="editable"]:focus-within > [data-content-color],
-.opal-auxiliary-tag[data-disabled] > [data-content-color] {
-  color: inherit;
-  --content-foreground-secondary: currentColor;
-}
-
-/* Inverted, the icon follows the pill unless the caller fixed its colour. */
-.opal-auxiliary-tag[data-clickable]:is(
-  [data-state="open"],
-  [aria-expanded="true"]
-):not([data-fixed-color]),
-.opal-auxiliary-tag[data-type="editable"]:focus-within:not([data-fixed-color]) {
-  --opal-tag-icon-color: currentColor;
+.opal-auxiliary-tag.interactive[data-fixed-color] > [data-content-color] {
+  --content-foreground-icon: var(--opal-tag-icon-color);
 }
 
 /* Capped title: an ellipsis, with the full title on hover. */
@@ -74,32 +57,6 @@
 
 .opal-auxiliary-tag[data-capped][data-size="sm"] [data-opal-content-title] {
   max-width: 120px;
-}
-
-/* ---------------------------------------------------------------------------
-   Clickable: a tag-shaped trigger, inverted while open
-   --------------------------------------------------------------------------- */
-
-.opal-auxiliary-tag[data-clickable] {
-  @apply cursor-pointer;
-}
-
-.opal-auxiliary-tag[data-clickable]:focus-visible {
-  @apply outline-none ring-2 ring-background-tint-04;
-}
-
-.opal-auxiliary-tag[data-clickable]:is(
-  [data-color="gray"],
-  [data-variant="count"]
-):not([data-state="open"], [aria-expanded="true"]):hover {
-  @apply bg-background-tint-03;
-}
-
-.opal-auxiliary-tag[data-clickable]:is(
-  [data-state="open"],
-  [aria-expanded="true"]
-) {
-  @apply bg-background-tint-inverted-03 text-text-inverted-05;
 }
 
 /* ---------------------------------------------------------------------------
@@ -128,46 +85,26 @@
   border-radius: 0.375rem;
 }
 
-.opal-auxiliary-tag[data-type="editable"][data-color="gray"]:not(
-  [data-disabled]
-):hover {
-  @apply bg-background-tint-03;
+/* Keyboard-selection state: dark pill with an outer ring (Figma State=Focus).
+   [data-size][data-variant] lift it over Interactive's hover rules, so a
+   hovered selected chip stays dark. */
+.opal-auxiliary-tag.interactive[data-type="editable"][data-size][data-variant]:focus-within {
+  @apply border-border-05 bg-background-tint-inverted-03 ring-2 ring-background-tint-04;
+  --interactive-foreground: var(--text-inverted-05);
+  --interactive-foreground-icon: var(--text-inverted-05);
 }
 
-.opal-auxiliary-tag[data-disabled] {
-  @apply text-text-01;
+.opal-auxiliary-tag.interactive[data-type="editable"]:focus-within
+  > [data-content-color] {
+  --content-foreground-secondary: currentColor;
 }
 
-/* Keyboard-selection state: dark pill with an outer ring (Figma State=Focus). */
-.opal-auxiliary-tag[data-type="editable"]:focus-within {
-  @apply border-border-05 bg-background-tint-inverted-03 text-text-inverted-05 ring-2 ring-background-tint-04;
-}
-
-.opal-auxiliary-tag-remove {
-  @apply flex shrink-0 cursor-pointer items-center justify-center;
-  width: 1rem;
-  height: 1rem;
-  padding: 2px;
-  border-radius: 0.25rem;
-  color: inherit;
-}
-
-.opal-auxiliary-tag-remove:hover {
-  @apply bg-background-tint-00;
-}
-
-.opal-auxiliary-tag-remove:focus-visible {
-  @apply outline-none;
-}
-
-.opal-auxiliary-tag-remove svg {
-  width: 100%;
-  height: 100%;
-}
-
-.opal-auxiliary-tag[data-size="sm"] .opal-auxiliary-tag-remove {
-  width: 0.75rem;
-  height: 0.75rem;
-  padding: 1px;
-  border-radius: 2px;
+/* On the dark selected chip the remove Button follows the pill: inverted
+   text and no fill of its own. The extra classes and attributes outrank the
+   Button's own internal hover and focus rules. */
+.opal-auxiliary-tag.interactive[data-type="editable"][data-size]:focus-within
+  .interactive[data-opal-tag-remove][data-interactive-variant] {
+  @apply bg-transparent;
+  --interactive-foreground: var(--text-inverted-05);
+  --interactive-foreground-icon: var(--text-inverted-05);
 }

@@ -6,7 +6,7 @@ import "@opal/components/inputs/texts/input-type-in/styles.css";
 import "@opal/components/inputs/texts/input-type-in-tag/styles.css";
 import { useCallback, useEffect, useRef } from "react";
 import type { IconFunctionComponent } from "@opal/types";
-import { Button, Tag, TAG_REMOVE_CLASS, Text } from "@opal/components";
+import { Button, Tag, TAG_REMOVE_ATTR, Text } from "@opal/components";
 import { SvgX } from "@opal/icons";
 import { useOpalStrings } from "@opal/strings";
 
@@ -200,7 +200,7 @@ function TagField({
   function removeButtons(): HTMLButtonElement[] {
     return Array.from(
       ownRootRef.current?.querySelectorAll<HTMLButtonElement>(
-        `.${TAG_REMOVE_CLASS}`
+        `[${TAG_REMOVE_ATTR}]`
       ) ?? []
     );
   }
@@ -273,7 +273,7 @@ function TagField({
       focusField();
       return;
     }
-    if (!target.classList.contains(TAG_REMOVE_CLASS)) return;
+    if (!target.hasAttribute(TAG_REMOVE_ATTR)) return;
     const buttons = removeButtons();
     const index = buttons.indexOf(target as HTMLButtonElement);
     // The arrows walk the chips; Right off the last one returns to the

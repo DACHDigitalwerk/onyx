@@ -232,7 +232,7 @@ export default function ConnectorList({
                   icon={tag.icon}
                   title={format.number(count)}
                   tooltip={t(`counts.${counted}`, { count })}
-                  color={tag.color}
+                  iconColor={tag.color}
                   variant="status"
                   size="md"
                   aria-label={t(`counts.${counted}`, { count })}

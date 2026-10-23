@@ -137,7 +137,7 @@ export {
 export {
   Tag,
   TAG_COLORS,
-  TAG_REMOVE_CLASS,
+  TAG_REMOVE_ATTR,
   type TagProps,
   type TagVariant,
   type TagColor,
