@@ -348,7 +348,7 @@ def test_unknown_group_is_rejected(env: _Env, db_session: Session) -> None:
         update_credential_sharing_endpoint(
             credential.id,
             CredentialSharing(admin_public=True, groups=[-1]),
-            user=env.admin,
+            user=env.owner,
             db_session=db_session,
         )
     assert exc.value.error_code is OnyxErrorCode.INVALID_INPUT
@@ -362,7 +362,7 @@ def test_community_edition_rejects_groups(env: _Env, db_session: Session) -> Non
         update_credential_sharing_endpoint(
             credential.id,
             CredentialSharing(admin_public=True, groups=[env.group.id]),
-            user=env.admin,
+            user=env.owner,
             db_session=db_session,
         )
     assert exc.value.error_code is OnyxErrorCode.FEATURE_NOT_AVAILABLE
