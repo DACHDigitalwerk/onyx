@@ -2,11 +2,21 @@
 
 import { useField } from "formik";
 import { useTranslations } from "next-intl";
-import { Divider, MessageCard } from "@opal/components";
+import {
+  Divider,
+  InputSingleSelect,
+  MessageCard,
+  type SelectOptions,
+} from "@opal/components";
 import { usePlans, useTierAtLeast } from "@/lib/tiers/hooks";
 import { Tier } from "@/lib/tiers/types";
 import { Content, Section } from "@opal/layouts";
-import { SvgBarChart, SvgEditBig, SvgUserManage } from "@opal/icons";
+import {
+  SvgBarChart,
+  SvgEditBig,
+  SvgMinusCircle,
+  SvgUserManage,
+} from "@opal/icons";
 import useUsers from "@/hooks/useUsers";
 import { Permission } from "@/lib/types";
 import { usePermissionAuthority } from "@/lib/permissions/hooks";
@@ -15,10 +25,6 @@ import GroupShareList, {
   type GroupShareGroup,
   type GroupShareLockedRow,
 } from "@/lib/connectors/components/GroupShareList";
-import {
-  SharePermissionMenu,
-  type SharePermissionMenuOption,
-} from "@/lib/permissions/components";
 
 interface ManageAccessFieldProps {
   disabled?: boolean;
@@ -50,18 +56,29 @@ export default function ManageAccessField({
 
   const [roles, , rolesHelpers] =
     useField<Record<string, ConnectorManageRole>>("group_roles");
-  const roleOptions: SharePermissionMenuOption<ConnectorManageRole>[] = [
+  // The roles, then the remove command set apart below a divider.
+  const REMOVE_ACCESS = "remove-access";
+  const roleOptions: SelectOptions = [
     {
       value: "editor",
-      label: t("role.editor.label"),
+      title: t("role.editor.label"),
       description: t("role.editor.description"),
       icon: SvgEditBig,
     },
     {
       value: "operator",
-      label: t("role.operator.label"),
+      title: t("role.operator.label"),
       description: t("role.operator.description"),
       icon: SvgBarChart,
+    },
+    {
+      options: [
+        {
+          value: REMOVE_ACCESS,
+          title: t("role.removeAccess.label"),
+          icon: SvgMinusCircle,
+        },
+      ],
     },
   ];
 
@@ -75,17 +92,19 @@ export default function ManageAccessField({
   // A group without a role is an Editor, which is what it is sent as.
   function renderRoleMenu(group: GroupShareGroup, remove: () => void) {
     return (
-      <SharePermissionMenu
+      <InputSingleSelect
         value={roles.value[String(group.id)] ?? "editor"}
+        defaultOption="editor"
         options={roleOptions}
-        onChange={(role) => setRole(group.id, role)}
-        onRemove={() => {
-          setRole(group.id, undefined);
-          remove();
+        onValueChange={(next) => {
+          if (next === REMOVE_ACCESS) {
+            setRole(group.id, undefined);
+            remove();
+          } else if (next === "editor" || next === "operator") {
+            setRole(group.id, next);
+          }
         }}
-        removeLabel={t("role.removeAccess.label")}
-        menuWidth={60}
-        ariaLabel={t("role.menu.ariaLabel", { name: group.name })}
+        placeholder={t("role.menu.ariaLabel", { name: group.name })}
         disabled={groupsLocked}
       />
     );
@@ -97,6 +116,16 @@ export default function ManageAccessField({
     icon: SvgUserManage,
     memberCount: adminCount,
     note: t("admins.alwaysShared"),
+    // Admins are always Editors: the role shows as text, not a menu.
+    role: (
+      <Content
+        icon={SvgEditBig}
+        title={t("role.editor.label")}
+        sizePreset="main-ui"
+        variant="section"
+        width="fit"
+      />
+    ),
   };
 
   return (

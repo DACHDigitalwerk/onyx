@@ -1,13 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useField } from "formik";
 import { useTranslations } from "next-intl";
 import {
   Button,
-  InputSingleComboBox,
   Chip,
+  InputMultiComboBox,
   Table,
   type TableColumn,
+  type TagItem,
 } from "@opal/components";
 import { Content, InputErrorText, Section } from "@opal/layouts";
 import { SvgUsers, SvgX } from "@opal/icons";
@@ -24,6 +26,11 @@ export interface GroupShareLockedRow {
   memberCount?: number;
   /** Why the row is fixed, e.g. "Always shared". */
   note: string;
+  /**
+   * A fixed value shown where the picked groups' control starts, with the
+   * note at the end, e.g. the role the row always has.
+   */
+  role?: React.ReactNode;
 }
 
 interface GroupShareRow {
@@ -33,6 +40,8 @@ interface GroupShareRow {
   memberCount?: number;
   /** Set on a locked row. */
   note?: string;
+  /** Set on a locked row with a fixed value before its note. */
+  role?: React.ReactNode;
   /** Set on a picked group, which the remove button drops. */
   groupId?: number;
 }
@@ -97,15 +106,16 @@ export default function GroupShareList({
   const loadFailed = !isLoading && !!error;
   const [field, meta, helpers] = useField<number[]>(name);
 
+  const [query, setQuery] = useState("");
+
   const selectedIds = new Set(field.value);
-  const options = (userGroups ?? [])
-    .filter((group) => !selectedIds.has(group.id))
-    .map((group) => ({
-      value: String(group.id),
-      title: group.name,
-      description: t("memberCount", { count: group.users.length }),
-      icon: SvgUsers,
-    }));
+  // Every group, the picked ones shown selected: picking one again drops it.
+  const options = (userGroups ?? []).map((group) => ({
+    value: String(group.id),
+    title: group.name,
+    description: t("memberCount", { count: group.users.length }),
+    icon: SvgUsers,
+  }));
 
   // Below the tier the fixed rows sit locked under the upgrade link, so the
   // list names what the plan adds to.
@@ -147,6 +157,12 @@ export default function GroupShareList({
     setGroups([...field.value, id]);
   }
 
+  // The picked groups, as the search marks them selected. They show as rows
+  // or pills below, not as chips in the search.
+  const pickedTags: TagItem[] = (userGroups ?? [])
+    .filter((group) => selectedIds.has(group.id))
+    .map((group) => ({ id: String(group.id), label: group.name }));
+
   const hasLockedRows = lockedRows.length > 0;
   const columns: TableColumn<GroupShareRow>[] = [
     {
@@ -187,7 +203,7 @@ export default function GroupShareList({
             alignment: "right",
             cell: (row) => {
               if (row.note) {
-                return (
+                const note = (
                   <Content
                     icon={row.icon}
                     title={row.note}
@@ -196,6 +212,21 @@ export default function GroupShareList({
                     orientation="reverse"
                     color="muted"
                   />
+                );
+                // The role sits where a picked group's select shows its
+                // value: the padding matches the select's border and inset.
+                return row.role === undefined ? (
+                  note
+                ) : (
+                  <Section
+                    flexDirection="row"
+                    justifyContent="between"
+                    alignItems="center"
+                    padding={1.75}
+                  >
+                    {row.role}
+                    {note}
+                  </Section>
                 );
               }
               const { groupId } = row;
@@ -233,9 +264,14 @@ export default function GroupShareList({
 
   return (
     <Section gap={2} alignItems="stretch" height="fit">
-      <InputSingleComboBox
-        value=""
-        onValueChange={addGroup}
+      <InputMultiComboBox
+        value={query}
+        onChange={setQuery}
+        onAdd={() => undefined}
+        tags={pickedTags}
+        showTags={false}
+        onSelectOption={(option) => addGroup(option.value)}
+        onRemoveTag={(id) => removeGroup(Number(id))}
         options={locked ? lockForTier(lockedOptions) : options}
         placeholder={placeholder}
         disabled={disabled || isLoading || loadFailed}
