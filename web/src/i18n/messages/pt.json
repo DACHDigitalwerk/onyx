@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "Executar verificações novamente",
-            "notOwnerTooltip": "Somente o proprietário pode executar novamente as verificações desta credencial"
+            "notOwnerTooltip": "Até que um conector use esta credencial, somente o proprietário pode executar novamente as verificações"
           },
           "authenticationType": {
             "label": "Tipo de autenticação"

@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "チェックを再実行",
-            "notOwnerTooltip": "この認証情報のチェックを再実行できるのは所有者のみです"
+            "notOwnerTooltip": "コネクタがこの認証情報を使用するまで、チェックを再実行できるのは所有者のみです"
           },
           "authenticationType": {
             "label": "認証タイプ"

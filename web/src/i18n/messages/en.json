@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "Re-run Checks",
-            "notOwnerTooltip": "Only the owner can re-run this credential's checks"
+            "notOwnerTooltip": "Only the owner can re-run this credential's checks until a connector uses it"
           },
           "authenticationType": {
             "label": "Authentication Type"

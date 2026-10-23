@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "Relancer les vérifications",
-            "notOwnerTooltip": "Seul le propriétaire peut relancer les vérifications de cet identifiant"
+            "notOwnerTooltip": "Tant qu'aucun connecteur n'utilise cet identifiant, seul le propriétaire peut relancer ses vérifications"
           },
           "authenticationType": {
             "label": "Type d’authentification"

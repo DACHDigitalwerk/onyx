@@ -288,6 +288,19 @@ export default function AuthenticationAccountCard({
   // Only the owner may rename the account and change its sharing; anyone it
   // is shared with may only use it.
   const canEditAccount: boolean = isOwnAccount;
+  // NOTE(@raunakab): this mirrors the server's credential-use rule
+  // (`assert_credential_use_allowed` in backend/onyx/connectors/factory.py).
+  // A non-owner may use a shared account only with the settings of a
+  // connector that already uses it. Re-run Checks runs the account's checks
+  // with no connector settings, so the rule reads it as "the owner has put
+  // this account into use somewhere": the server allows it for a non-owner
+  // only when at least one connector uses the account, and refuses it
+  // (403) otherwise. `usages` lists only the connectors this viewer can
+  // manage, so this check is slightly stricter than the server's: if every
+  // connector using the account is outside the viewer's reach, the button
+  // stays disabled even though the server would allow the run. Revisit if
+  // the server rule stops requiring a connector for a run with no settings.
+  const canRerunChecks: boolean = isOwnAccount || inUse;
 
   // The control beside the chevron: a caller's own, else the pick state.
   function pickControl(): React.ReactNode {
@@ -433,12 +446,10 @@ export default function AuthenticationAccountCard({
                           // The label holds still while the checks run; only
                           // the icon turns into a spinner.
                           icon={running ? IconLoader : SvgPlay}
-                          // Only the owner may re-run: the server refuses a
-                          // non-owner unless a connector already uses the
-                          // account.
-                          disabled={running || !isOwnAccount}
+                          // See the note on canRerunChecks.
+                          disabled={running || !canRerunChecks}
                           tooltip={
-                            isOwnAccount
+                            canRerunChecks
                               ? undefined
                               : t("rerunButton.notOwnerTooltip")
                           }

@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "重新运行检查",
-            "notOwnerTooltip": "只有所有者可以重新运行此凭据的检查"
+            "notOwnerTooltip": "在有连接器使用此凭据之前，只有所有者可以重新运行其检查"
           },
           "authenticationType": {
             "label": "认证类型"

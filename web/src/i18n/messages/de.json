@@ -3427,7 +3427,7 @@
           },
           "rerunButton": {
             "label": "Prüfungen erneut ausführen",
-            "notOwnerTooltip": "Nur der Eigentümer kann die Prüfungen dieser Anmeldedaten erneut ausführen"
+            "notOwnerTooltip": "Bis ein Connector diese Anmeldedaten nutzt, kann nur der Eigentümer ihre Prüfungen erneut ausführen"
           },
           "authenticationType": {
             "label": "Authentifizierungstyp"
