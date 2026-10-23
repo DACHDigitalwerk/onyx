@@ -198,7 +198,9 @@ export default function GroupShareList({
           {
             kind: "display",
             id: "trailing",
-            width: { weight: 20 },
+            // Wide enough for a role select, and for a locked row's role and
+            // note on one line.
+            width: { weight: 40 },
             hideable: false,
             alignment: "right",
             cell: (row) => {

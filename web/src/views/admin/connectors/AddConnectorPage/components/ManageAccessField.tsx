@@ -116,13 +116,14 @@ export default function ManageAccessField({
     icon: SvgUserManage,
     memberCount: adminCount,
     note: t("admins.alwaysShared"),
-    // Admins are always Editors: the role shows as text, not a menu.
+    // Admins are always Editors: the role shows as text, not a menu, in the
+    // selects' body font.
     role: (
       <Content
         icon={SvgEditBig}
         title={t("role.editor.label")}
         sizePreset="main-ui"
-        variant="section"
+        variant="body"
         width="fit"
       />
     ),
