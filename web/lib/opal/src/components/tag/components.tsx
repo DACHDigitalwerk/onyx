@@ -25,10 +25,10 @@ type TagVariant = "default" | "status" | "count";
 
 // DOM attributes pass through to the root, so a Tooltip or popover trigger
 // can wrap a Tag.
-interface TagProps extends Omit<
+type TagProps = Omit<
   WithoutStyles<React.HTMLAttributes<HTMLDivElement>>,
   "title" | "color" | "children"
-> {
+> & {
   ref?: React.Ref<HTMLDivElement>;
 
   /** Optional icon component. */
@@ -45,7 +45,7 @@ interface TagProps extends Omit<
 
   /** Size variant. Default: `"sm"`. */
   size?: TagSize;
-}
+};
 
 // ---------------------------------------------------------------------------
 // Tag
