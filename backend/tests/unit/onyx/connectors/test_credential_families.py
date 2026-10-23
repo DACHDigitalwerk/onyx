@@ -25,6 +25,7 @@ def test_new_family_credential_is_stored_in_the_family_shape() -> None:
         "email": "user@example.com",
         "token": "token",
         "oauth": None,
+        "scoped": None,
         CREDENTIAL_FAMILY_KEY: "atlassian",
     }
     assert to_source_credential_json(DocumentSource.JIRA, stored) == {

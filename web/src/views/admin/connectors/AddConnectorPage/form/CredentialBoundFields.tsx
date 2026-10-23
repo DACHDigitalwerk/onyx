@@ -6,6 +6,7 @@ import type { ConfigurableSources } from "@/lib/connectors/types/source";
 import type { ConnectionConfiguration } from "@/lib/connectors/types";
 import type { CredentialValues } from "@/lib/credentials/types";
 import { RenderField } from "@/views/admin/connectors/AddConnectorPage/form/FieldRendering";
+import { isFieldVisible } from "@/views/admin/connectors/AddConnectorPage/form/ConnectorConfigFields";
 
 type ConnectorField = ConnectionConfiguration["values"][number];
 
@@ -41,9 +42,13 @@ export default function CredentialBoundFields({
   onFieldBlur,
 }: CredentialBoundFieldsProps) {
   const t = useTranslations("admin.connectorsList.boundFields");
-  const visibleFields = fields.filter((field) => !field.hidden);
+  const visibleFields = fields.filter((field) =>
+    isFieldVisible(field, values, currentCredential)
+  );
   const visibleAdvancedFields = showAdvancedFields
-    ? advancedFields.filter((field) => !field.hidden)
+    ? advancedFields.filter((field) =>
+        isFieldVisible(field, values, currentCredential)
+      )
     : [];
 
   function errorText(error: CredentialBindingFieldError): string {

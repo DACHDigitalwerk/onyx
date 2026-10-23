@@ -5213,7 +5213,8 @@
         "zuliprcContent": "Zuliprc-Inhalt",
         "authenticationMethod": "Authentifizierungsmethode",
         "primaryAdminEmail": "E-Mail des primären Administrators",
-        "serviceAccountKey": "Dienstkontoschlüssel"
+        "serviceAccountKey": "Dienstkontoschlüssel",
+        "scopedToken": "Bereichsbezogenes API-Token"
       },
       "hints": {
         "boxUserEmail": "Optional. Der Box-Benutzer, dessen Identität übernommen wird.",
@@ -5225,7 +5226,8 @@
         "outlineBaseUrl": "Zum Beispiel https://app.getoutline.com oder Ihre selbst gehostete URL.",
         "pfxFile": "Laden Sie die `.pfx`-Datei mit dem privaten Schlüssel der App-Registrierung hoch. Muss kleiner als 10 KB sein.",
         "testrailBaseUrl": "Zum Beispiel https://yourcompany.testrail.io.",
-        "googleServiceAccountKey": "Laden Sie den `.json`-Schlüssel eines Google-Dienstkontos mit domainweiter Delegierung hoch oder fügen Sie ihn ein."
+        "googleServiceAccountKey": "Laden Sie den `.json`-Schlüssel eines Google-Dienstkontos mit domainweiter Delegierung hoch oder fügen Sie ihn ein.",
+        "scopedToken": "Token mit Scopes müssen über das API-Gateway von Atlassian geleitet werden. Für klassische Token deaktiviert lassen."
       },
       "methods": {
         "labels": {

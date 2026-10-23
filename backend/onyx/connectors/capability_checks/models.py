@@ -25,6 +25,7 @@ from onyx.connectors.capability_checks.form_state import (
     validate_form_state,
 )
 from onyx.connectors.capability_checks.generic_row import http_response_in_chain
+from onyx.connectors.connector_config import CredentialBinding
 from onyx.connectors.exceptions import (
     ConnectorValidationError,
     CredentialExpiredError,
@@ -487,14 +488,24 @@ class CapabilityCheckContext(BaseModel):
     @cached_property
     def form_state(self) -> FormState[Any] | None:
         """``connector_specific_config`` validated field by field against the
-        source's config model. None when there is no config, or the source has
-        no connector class."""
+        source's config model, with the values the credential decides laid
+        over it (``CredentialBinding.credential_values``), as the gateway reads
+        them. None when there is no config, or the source has no connector
+        class."""
         if self.connector_specific_config is None:
             return None
         mapping = CONNECTOR_CLASS_MAP.get(self.source)
         if mapping is None:
             return None
-        return validate_form_state(mapping.config_class, self.connector_specific_config)
+        config_class = mapping.config_class
+        credential_values = (
+            config_class.credential_values(self.credential_json)
+            if issubclass(config_class, CredentialBinding)
+            else {}
+        )
+        return validate_form_state(
+            config_class, {**self.connector_specific_config, **credential_values}
+        )
 
 
 class CheckStep(BaseModel):

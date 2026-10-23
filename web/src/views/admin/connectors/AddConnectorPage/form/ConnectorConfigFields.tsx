@@ -18,6 +18,19 @@ export interface ConnectorConfigFieldsProps {
   reportScope: StoredReportScope | null;
 }
 
+/** Whether the form shows `field` for these values and this account. */
+export function isFieldVisible(
+  field: ConnectorField,
+  values: Record<string, unknown>,
+  currentCredential: CredentialValues | null
+): boolean {
+  return (
+    !field.hidden &&
+    (!field.visibleCondition ||
+      field.visibleCondition(values, currentCredential))
+  );
+}
+
 /**
  * The config fields the form shows for these values. Advanced fields are all
  * optional, so they sit in the same flat list instead of behind a toggle; a
@@ -34,12 +47,7 @@ export function visibleConnectorFields(
   return [
     ...config.values,
     ...(showAdvanced ? config.advanced_values : []),
-  ].filter(
-    (field) =>
-      !field.hidden &&
-      (!field.visibleCondition ||
-        field.visibleCondition(values, currentCredential))
-  );
+  ].filter((field) => isFieldVisible(field, values, currentCredential));
 }
 
 export default function ConnectorConfigFields({

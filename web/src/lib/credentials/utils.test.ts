@@ -55,6 +55,7 @@ describe("credential edit helpers", () => {
     expect(editableFields).toEqual({
       jira_user_email: null,
       jira_api_token: "masked-token",
+      scoped_token: false,
     });
     expect(createInitialValues(credential, editableFields)).toMatchObject({
       name: "",

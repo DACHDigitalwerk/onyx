@@ -317,6 +317,11 @@ const ATLASSIAN_SCOPED_TOKEN_FIELD: BooleanOption = {
   optional: true,
   default: false,
   asCheckbox: true,
+  // The account holds the flag; `configFromScopedToken` copies it here. An
+  // older account has none, so the connector still sets it.
+  visibleCondition: (_values, currentCredential) =>
+    currentCredential !== null &&
+    typeof currentCredential.credential_json?.scoped_token !== "boolean",
 };
 
 /**
@@ -337,6 +342,17 @@ function confluencePageId(entry: string): string {
   const trimmed = entry.trim();
   const match = /\/pages\/(\d+)|[?&]pageId=(\d+)/.exec(trimmed);
   return match?.[1] ?? match?.[2] ?? trimmed;
+}
+
+/**
+ * The account's scoped-token flag, mirrored into the config. An account saved
+ * before the flag moved there has none, so the config keeps its own value.
+ */
+function configFromScopedToken(
+  credential: CredentialValues | null
+): Record<string, boolean> {
+  const scoped: unknown = credential?.credential_json?.scoped_token;
+  return typeof scoped === "boolean" ? { scoped_token: scoped } : {};
 }
 
 export const connectorConfigs: Record<
@@ -884,6 +900,7 @@ export const connectorConfigs: Record<
   },
   confluence: {
     description: "connectors.confluence.description",
+    configFromCredential: configFromScopedToken,
     initialConnectorName: "cloud_name",
     values: [
       {
@@ -1033,6 +1050,7 @@ export const connectorConfigs: Record<
   },
   jira: {
     description: "connectors.jira.description",
+    configFromCredential: configFromScopedToken,
     subtext: "connectors.jira.subtext",
     values: [
       {

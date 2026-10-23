@@ -96,7 +96,10 @@ import {
 import { FederatedConnectorForm } from "@/components/admin/federated/FederatedConnectorForm";
 import AuthenticationAccountSection from "@/views/admin/connectors/AddConnectorPage/sections/AuthenticationAccountSection";
 import ConnectorContentSection from "@/views/admin/connectors/AddConnectorPage/sections/ConnectorContentSection";
-import { visibleConnectorFields } from "@/views/admin/connectors/AddConnectorPage/form/ConnectorConfigFields";
+import {
+  isFieldVisible,
+  visibleConnectorFields,
+} from "@/views/admin/connectors/AddConnectorPage/form/ConnectorConfigFields";
 import ConnectorSettingsSection from "@/views/admin/connectors/AddConnectorPage/sections/ConnectorSettingsSection";
 import ScheduleSection from "@/views/admin/connectors/AddConnectorPage/sections/ScheduleSection";
 import EditFileLocations from "@/views/admin/connectors/AddConnectorPage/form/EditFileLocations";
@@ -761,7 +764,9 @@ export function AddConnectorForm({ connector, edit }: AddConnectorFormProps) {
           ...(showAdvancedBoundFields
             ? credentialBoundFields.advancedValues
             : []),
-        ].filter((field) => !field.hidden);
+        ].filter((field) =>
+          isFieldVisible(field, formikProps.values, formCredential)
+        );
         const hasVisibleBoundFields = visibleBoundFields.length > 0;
         const checkedCredential = canCreate ? formCredential : null;
         // Another account than the pair's is a credential swap; the plan

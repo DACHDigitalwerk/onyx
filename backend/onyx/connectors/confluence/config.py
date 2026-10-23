@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import Annotated, Any
+from typing import Annotated, Any, ClassVar
 from urllib.parse import urlparse
 
 from pydantic import field_validator
@@ -11,6 +11,7 @@ from onyx.configs.app_configs import (
     CONTINUE_ON_CONNECTOR_FAILURE,
     INDEX_BATCH_SIZE,
 )
+from onyx.connectors.atlassian_credential import credential_scoped_token
 from onyx.connectors.atlassian_query import has_last_modified_filter, has_order_by
 from onyx.connectors.connector_config import (
     ConnectorConfig,
@@ -112,8 +113,18 @@ class ConfluenceCredentialBinding(CredentialBinding):
     wiki_base: Annotated[str, FieldPolicy(FieldClass.IDENTITY)]
     # Adds "/wiki" to the document id URLs.
     is_cloud: Annotated[bool, FieldPolicy(FieldClass.IDENTITY)]
-    # Only selects the API gateway: document ids keep wiki_base.
+    # Only selects the API gateway: document ids keep wiki_base. The account
+    # holds it now; the config mirrors it, and is the fallback for accounts
+    # saved before the flag moved there.
     scoped_token: Annotated[bool, _COSMETIC] = False
+
+    credential_derived_fields: ClassVar[frozenset[str]] = frozenset({"scoped_token"})
+
+    @classmethod
+    def credential_values(cls, credential_json: dict[str, Any]) -> dict[str, Any]:
+        # An account saved before the flag moved there leaves it to the config.
+        scoped = credential_scoped_token(credential_json)
+        return {} if scoped is None else {"scoped_token": scoped}
 
     def validate_credential(self, credential_json: dict[str, Any]) -> None:
         authorized_wiki_base = credential_json.get(_OAUTH_WIKI_BASE_KEY)

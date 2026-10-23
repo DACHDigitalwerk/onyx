@@ -5213,7 +5213,8 @@
         "zuliprcContent": "Zuliprc 내용",
         "authenticationMethod": "인증 방법",
         "primaryAdminEmail": "기본 관리자 이메일",
-        "serviceAccountKey": "서비스 계정 키"
+        "serviceAccountKey": "서비스 계정 키",
+        "scopedToken": "범위 지정 API 토큰"
       },
       "hints": {
         "boxUserEmail": "선택 사항입니다. 대신 접근할 Box 사용자입니다.",
@@ -5225,7 +5226,8 @@
         "outlineBaseUrl": "예: https://app.getoutline.com 또는 자체 호스팅 URL.",
         "pfxFile": "앱 등록의 개인 키가 포함된 `.pfx` 파일을 업로드하세요. 10KB 미만이어야 합니다.",
         "testrailBaseUrl": "예: https://yourcompany.testrail.io.",
-        "googleServiceAccountKey": "도메인 전체 위임이 설정된 Google 서비스 계정의 `.json` 키를 업로드하거나 붙여 넣으세요."
+        "googleServiceAccountKey": "도메인 전체 위임이 설정된 Google 서비스 계정의 `.json` 키를 업로드하거나 붙여 넣으세요.",
+        "scopedToken": "범위가 지정된 토큰은 Atlassian API 게이트웨이를 거쳐야 합니다. 기존 토큰이면 끄세요."
       },
       "methods": {
         "labels": {

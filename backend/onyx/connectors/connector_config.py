@@ -30,6 +30,15 @@ class CredentialBinding(BaseModel):
     # (``factory.assert_user_can_use_credential``) does not compare them.
     credential_derived_fields: ClassVar[frozenset[str]] = frozenset()
 
+    @classmethod
+    def credential_values(
+        cls,
+        credential_json: dict[str, Any],  # noqa: ARG003
+    ) -> dict[str, Any]:
+        """The derived fields' values the source credential JSON holds. They
+        override the config's, so the checks and the gateway read one value."""
+        return {}
+
     def validate_credential(
         self,
         credential_json: dict[str, Any],  # noqa: ARG002

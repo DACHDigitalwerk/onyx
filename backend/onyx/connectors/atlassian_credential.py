@@ -15,6 +15,9 @@ _CONFLUENCE_ACCESS_TOKEN_KEY = "confluence_access_token"
 _CONFLUENCE_REFRESH_TOKEN_KEY = "confluence_refresh_token"
 _JIRA_USER_EMAIL_KEY = "jira_user_email"
 _JIRA_API_TOKEN_KEY = "jira_api_token"
+# Whether the API token is a scoped token, which goes through Atlassian's API
+# gateway. Same key for both sources; absent on accounts saved before it.
+_SCOPED_TOKEN_KEY = "scoped_token"
 
 
 class AtlassianOAuth(BaseModel):
@@ -42,6 +45,9 @@ class AtlassianCredential(FamilyCredential):
     # An API token, a personal access token, or the OAuth access token.
     token: str
     oauth: AtlassianOAuth | None = None
+    # Whether ``token`` is a scoped API token. None on an account saved before
+    # the flag moved here; the connector config's ``scoped_token`` decides.
+    scoped: bool | None = None
 
 
 class ConfluenceCredentialCodec(FamilyCredentialCodec[AtlassianCredential]):
@@ -53,6 +59,7 @@ class ConfluenceCredentialCodec(FamilyCredentialCodec[AtlassianCredential]):
         return AtlassianCredential(
             email=source_json.get(_CONFLUENCE_USERNAME_KEY) or None,
             token=source_json[_CONFLUENCE_ACCESS_TOKEN_KEY],
+            scoped=source_json.get(_SCOPED_TOKEN_KEY),
             oauth=(
                 AtlassianOAuth.model_validate(
                     {**source_json, "refresh_token": refresh_token}
@@ -68,6 +75,8 @@ class ConfluenceCredentialCodec(FamilyCredentialCodec[AtlassianCredential]):
             _CONFLUENCE_USERNAME_KEY: family_credential.email,
             _CONFLUENCE_ACCESS_TOKEN_KEY: family_credential.token,
         }
+        if family_credential.scoped is not None:
+            source_json[_SCOPED_TOKEN_KEY] = family_credential.scoped
         if family_credential.oauth is None:
             return source_json
         oauth = family_credential.oauth.model_dump(exclude_none=True)
@@ -83,6 +92,7 @@ class JiraCredentialCodec(FamilyCredentialCodec[AtlassianCredential]):
         return AtlassianCredential(
             email=source_json.get(_JIRA_USER_EMAIL_KEY) or None,
             token=source_json[_JIRA_API_TOKEN_KEY],
+            scoped=source_json.get(_SCOPED_TOKEN_KEY),
         )
 
     def from_family(self, family_credential: AtlassianCredential) -> dict[str, Any]:
@@ -91,8 +101,18 @@ class JiraCredentialCodec(FamilyCredentialCodec[AtlassianCredential]):
         source_json: dict[str, Any] = {_JIRA_API_TOKEN_KEY: family_credential.token}
         if family_credential.email:
             source_json[_JIRA_USER_EMAIL_KEY] = family_credential.email
+        if family_credential.scoped is not None:
+            source_json[_SCOPED_TOKEN_KEY] = family_credential.scoped
         return source_json
 
     def accepts(self, family_credential: AtlassianCredential) -> bool:
         # Jira cannot use or refresh a Confluence Cloud OAuth (3LO) token.
         return family_credential.oauth is None
+
+
+def credential_scoped_token(credentials: dict[str, Any]) -> bool | None:
+    """Whether the account's API token is scoped, as the source credential
+    JSON holds it. None when the account predates the flag, so the caller
+    falls back to the connector config's ``scoped_token``."""
+    value = credentials.get(_SCOPED_TOKEN_KEY)
+    return value if isinstance(value, bool) else None

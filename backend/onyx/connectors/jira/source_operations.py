@@ -190,8 +190,13 @@ class JiraSourceOperations(SourceOperations):
         return vars(self).setdefault("_build_lock", threading.Lock())
 
     def _binding(self) -> JiraCredentialBinding:
-        return JiraCredentialBinding.model_validate(
+        """The bound fields. The account decides ``scoped_token`` when it holds
+        the flag; an older account leaves it to the connector config."""
+        binding = JiraCredentialBinding.model_validate(
             self.connector_specific_config or {}
+        )
+        return binding.model_copy(
+            update=JiraCredentialBinding.credential_values(self._credentials())
         )
 
     def _credentials(self) -> dict[str, Any]:

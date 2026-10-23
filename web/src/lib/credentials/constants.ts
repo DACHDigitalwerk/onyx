@@ -276,6 +276,12 @@ export const CREDENTIAL_SPECS = {
     fields: {
       confluence_username: email("accountEmail"),
       confluence_access_token: secret("apiToken"),
+      // Under the token it describes. Saved with the account; the connector
+      // config mirrors it.
+      scoped_token: checkbox("scopedToken", {
+        optional: true,
+        hint: { key: "scopedToken" },
+      }),
     },
   }),
   jira: defineCredentialSpec({
@@ -286,6 +292,10 @@ export const CREDENTIAL_SPECS = {
         hint: { key: "jiraUserEmail" },
       }),
       jira_api_token: secret("apiToken"),
+      scoped_token: checkbox("scopedToken", {
+        optional: true,
+        hint: { key: "scopedToken" },
+      }),
     },
   }),
   productboard: defineCredentialSpec({

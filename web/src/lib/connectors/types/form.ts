@@ -185,5 +185,5 @@ export interface ConnectionConfiguration {
    */
   configFromCredential?: (
     credential: CredentialValues | null
-  ) => Record<string, string | undefined>;
+  ) => Record<string, string | boolean | undefined>;
 }

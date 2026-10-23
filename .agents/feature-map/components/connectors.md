@@ -711,7 +711,11 @@ applies it before it builds a connector. A user may use the credential when:
 
 The comparison skips a binding's `credential_derived_fields`: values the form
 takes from the credential and `validate_credential` pins to it, such as Google
-Drive's `credential_kind`.
+Drive's `credential_kind`. Confluence's and Jira's `scoped_token` is one too: the
+account form saves it in the Atlassian credential (`AtlassianCredential.scoped`),
+the config mirrors it (`configFromCredential`), and the gateways read the
+account's value first, falling back to the config for an account saved before
+it (`atlassian_credential.credential_scoped_token`).
 
 The pairs are the record of the bound values; the credential stores none. The
 rule runs in `validate_ccpair_for_user` (its `user` is None only for system

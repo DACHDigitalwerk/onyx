@@ -1536,8 +1536,15 @@ class ConfluenceSourceOperations(SourceOperations):
         return vars(self).setdefault("_build_lock", threading.Lock())
 
     def _binding(self) -> ConfluenceCredentialBinding:
-        return ConfluenceCredentialBinding.model_validate(
+        """The bound fields. The account decides ``scoped_token`` when it holds
+        the flag; an older account leaves it to the connector config."""
+        binding = ConfluenceCredentialBinding.model_validate(
             self.connector_specific_config or {}
+        )
+        return binding.model_copy(
+            update=ConfluenceCredentialBinding.credential_values(
+                self.credentials_provider.get_credentials()
+            )
         )
 
     def _scoped_api_url(self, wiki_base: str) -> str:

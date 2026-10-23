@@ -5213,7 +5213,8 @@
         "zuliprcContent": "Contenu de zuliprc",
         "authenticationMethod": "Méthode d'authentification",
         "primaryAdminEmail": "E-mail de l’administrateur principal",
-        "serviceAccountKey": "Clé du compte de service"
+        "serviceAccountKey": "Clé du compte de service",
+        "scopedToken": "Jeton d'API à portée limitée"
       },
       "hints": {
         "boxUserEmail": "Facultatif. L'utilisateur Box à usurper.",
@@ -5225,7 +5226,8 @@
         "outlineBaseUrl": "Par exemple https://app.getoutline.com, ou l'URL de votre instance auto-hébergée.",
         "pfxFile": "Importez le fichier `.pfx` contenant la clé privée de l’inscription d’application. Doit faire moins de 10 Ko.",
         "testrailBaseUrl": "Par exemple https://yourcompany.testrail.io.",
-        "googleServiceAccountKey": "Importez ou collez la clé `.json` d’un compte de service Google avec délégation au niveau du domaine."
+        "googleServiceAccountKey": "Importez ou collez la clé `.json` d’un compte de service Google avec délégation au niveau du domaine.",
+        "scopedToken": "Les jetons à portée nécessitent un routage via la passerelle d'API d'Atlassian. Laissez désactivé pour les jetons classiques."
       },
       "methods": {
         "labels": {

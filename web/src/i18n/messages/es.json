@@ -5213,7 +5213,8 @@
         "zuliprcContent": "Contenido de zuliprc",
         "authenticationMethod": "Método de autenticación",
         "primaryAdminEmail": "Correo del administrador principal",
-        "serviceAccountKey": "Clave de la cuenta de servicio"
+        "serviceAccountKey": "Clave de la cuenta de servicio",
+        "scopedToken": "Token de API con ámbitos"
       },
       "hints": {
         "boxUserEmail": "Opcional. El usuario de Box al que suplantar.",
@@ -5225,7 +5226,8 @@
         "outlineBaseUrl": "Por ejemplo, https://app.getoutline.com, o tu URL autoalojada.",
         "pfxFile": "Sube el archivo `.pfx` que contiene la clave privada del registro de la aplicación. Debe ocupar menos de 10 KB.",
         "testrailBaseUrl": "Por ejemplo, https://yourcompany.testrail.io.",
-        "googleServiceAccountKey": "Sube o pega la clave `.json` de una cuenta de servicio de Google con delegación de todo el dominio."
+        "googleServiceAccountKey": "Sube o pega la clave `.json` de una cuenta de servicio de Google con delegación de todo el dominio.",
+        "scopedToken": "Los tokens con ámbitos requieren enrutar a través de la puerta de enlace de API de Atlassian. Déjalo desactivado para tokens clásicos."
       },
       "methods": {
         "labels": {

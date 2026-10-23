@@ -5213,7 +5213,8 @@
         "zuliprcContent": "Zuliprc 内容",
         "authenticationMethod": "身份验证方式",
         "primaryAdminEmail": "主管理员邮箱",
-        "serviceAccountKey": "服务账号密钥"
+        "serviceAccountKey": "服务账号密钥",
+        "scopedToken": "带作用域的 API 令牌"
       },
       "hints": {
         "boxUserEmail": "可选。要模拟的 Box 用户。",
@@ -5225,7 +5226,8 @@
         "outlineBaseUrl": "例如 https://app.getoutline.com，或你的自托管 URL。",
         "pfxFile": "上传包含应用注册私钥的 `.pfx` 文件。必须小于 10 KB。",
         "testrailBaseUrl": "例如 https://yourcompany.testrail.io。",
-        "googleServiceAccountKey": "上传或粘贴已启用全网域委派的 Google 服务账号的 `.json` 密钥。"
+        "googleServiceAccountKey": "上传或粘贴已启用全网域委派的 Google 服务账号的 `.json` 密钥。",
+        "scopedToken": "带作用域的令牌需要通过 Atlassian 的 API 网关路由。使用经典令牌时请保持关闭。"
       },
       "methods": {
         "labels": {
