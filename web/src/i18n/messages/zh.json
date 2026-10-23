@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "删除账户",
-            "inUseTooltip": "无法删除此凭据，因为有其他连接器正在使用它。",
-            "notOwnerTooltip": "只有所有者可以删除此凭据"
+            "inUseTooltip": "无法删除此凭据，因为有其他连接器正在使用它。"
           },
           "updateButton": {
             "label": "更新凭据",

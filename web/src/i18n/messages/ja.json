@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "アカウントを削除",
-            "inUseTooltip": "他のコネクタがこの認証情報を使用しているため、削除できません。",
-            "notOwnerTooltip": "この認証情報を削除できるのは所有者のみです"
+            "inUseTooltip": "他のコネクタがこの認証情報を使用しているため、削除できません。"
           },
           "updateButton": {
             "label": "認証情報を更新",

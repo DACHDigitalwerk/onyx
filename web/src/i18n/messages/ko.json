@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "계정 삭제",
-            "inUseTooltip": "다른 커넥터가 이 자격 증명을 사용하고 있어 삭제할 수 없습니다.",
-            "notOwnerTooltip": "소유자만 이 자격 증명을 삭제할 수 있습니다"
+            "inUseTooltip": "다른 커넥터가 이 자격 증명을 사용하고 있어 삭제할 수 없습니다."
           },
           "updateButton": {
             "label": "자격 증명 업데이트",

@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "Supprimer le compte",
-            "inUseTooltip": "Impossible de supprimer cet identifiant, car d’autres connecteurs l’utilisent.",
-            "notOwnerTooltip": "Seul le propriétaire peut supprimer cet identifiant"
+            "inUseTooltip": "Impossible de supprimer cet identifiant, car d’autres connecteurs l’utilisent."
           },
           "updateButton": {
             "label": "Mettre à jour les identifiants",

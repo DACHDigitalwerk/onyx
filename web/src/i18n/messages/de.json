@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "Konto löschen",
-            "inUseTooltip": "Diese Zugangsdaten können nicht gelöscht werden, da andere Konnektoren sie verwenden.",
-            "notOwnerTooltip": "Nur der Eigentümer kann diese Anmeldedaten löschen"
+            "inUseTooltip": "Diese Zugangsdaten können nicht gelöscht werden, da andere Konnektoren sie verwenden."
           },
           "updateButton": {
             "label": "Anmeldedaten aktualisieren",

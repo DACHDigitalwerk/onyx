@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "Delete Account",
-            "inUseTooltip": "Cannot delete this credential because there are other connectors that are using it.",
-            "notOwnerTooltip": "Only the owner can delete this credential"
+            "inUseTooltip": "Cannot delete this credential because there are other connectors that are using it."
           },
           "updateButton": {
             "label": "Update Credentials",

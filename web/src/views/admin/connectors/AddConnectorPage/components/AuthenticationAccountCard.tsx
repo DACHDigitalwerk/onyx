@@ -411,23 +411,22 @@ export default function AuthenticationAccountCard({
                             onClick={onUpdateCredentials}
                           />
                         )}
-                        <Button
-                          variant="danger"
-                          prominence="tertiary"
-                          icon={SvgTrash}
-                          aria-label={t("deleteButton.label")}
-                          // The server refuses to delete an account that
-                          // connectors still use, or that is not the user's.
-                          disabled={!isOwnAccount || inUse}
-                          tooltip={
-                            !isOwnAccount
-                              ? t("deleteButton.notOwnerTooltip")
-                              : inUse
-                                ? t("deleteButton.inUseTooltip")
-                                : undefined
-                          }
-                          onClick={() => setConfirmingDelete(true)}
-                        />
+                        {/* Only the owner may delete the account. */}
+                        {isOwnAccount && (
+                          <Button
+                            variant="danger"
+                            prominence="tertiary"
+                            icon={SvgTrash}
+                            aria-label={t("deleteButton.label")}
+                            // The server refuses to delete an account that
+                            // connectors still use.
+                            disabled={inUse}
+                            tooltip={
+                              inUse ? t("deleteButton.inUseTooltip") : undefined
+                            }
+                            onClick={() => setConfirmingDelete(true)}
+                          />
+                        )}
                         <Button
                           prominence="secondary"
                           // The label holds still while the checks run; only

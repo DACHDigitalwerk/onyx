@@ -3402,8 +3402,7 @@
           },
           "deleteButton": {
             "label": "Excluir conta",
-            "inUseTooltip": "Não é possível excluir esta credencial porque há outros conectores usando-a.",
-            "notOwnerTooltip": "Somente o proprietário pode excluir esta credencial"
+            "inUseTooltip": "Não é possível excluir esta credencial porque há outros conectores usando-a."
           },
           "updateButton": {
             "label": "Atualizar credenciais",
