@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, OverflowText, Tag, Text } from "@opal/components";
+import { Button, OverflowText, Tag, Text, Tooltip } from "@opal/components";
 import type { TagProps, TextFont } from "@opal/components";
 import type { ContainerSizeVariants } from "@opal/types";
 import SvgAlertCircle from "@opal/icons/alert-circle";
@@ -22,6 +22,8 @@ type ContentMdSizePreset = "main-content" | "main-ui" | "secondary";
 type ContentMdAuxIcon = "info-gray" | "info-blue" | "warning" | "error";
 
 type ContentMdSuffix = "optional" | (string & {});
+
+type ContentMdTag = TagProps & { tooltip?: string };
 
 interface ContentMdPresetConfig {
   /** Opal font name for the title. */
@@ -83,8 +85,8 @@ interface ContentMdProps {
   /** Auxiliary status icon rendered beside the title. */
   auxIcon?: ContentMdAuxIcon;
 
-  /** Tag rendered beside the title. */
-  tag?: TagProps;
+  /** Tag rendered beside the title, with an optional hover tooltip. */
+  tag?: ContentMdTag;
 
   /**
    * Clamp the title to N lines with ellipsis; a cut title shows in full in a
@@ -316,11 +318,17 @@ function ContentMd({
               );
             })()}
 
-          {tag && (
-            <span className="ms-1 flex shrink-0">
-              <Tag {...tag} />
-            </span>
-          )}
+          {tag &&
+            (() => {
+              const { tooltip, ...tagProps } = tag;
+              return (
+                <span className="ms-1 flex shrink-0">
+                  <Tooltip tooltip={tooltip} side="top">
+                    <Tag {...tagProps} />
+                  </Tooltip>
+                </span>
+              );
+            })()}
 
           {editable && !editing && editHandle == null && (
             <div
@@ -383,4 +391,5 @@ export {
   type ContentMdSizePreset,
   type ContentMdSuffix,
   type ContentMdAuxIcon,
+  type ContentMdTag,
 };

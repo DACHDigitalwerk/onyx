@@ -289,15 +289,19 @@ export default function ConnectorRow({
                         <StageDetailsTrigger open={stagesOpen} />
                       )}
                       {warnings > 0 && (
-                        <Tag
-                          icon={SvgAlertTriangle}
-                          title={format.number(warnings)}
+                        <Tooltip
                           tooltip={tRuns("warnings.tooltip", {
                             count: warnings,
                           })}
-                          color="orange"
-                          variant="count"
-                        />
+                          side="top"
+                        >
+                          <Tag
+                            icon={SvgAlertTriangle}
+                            title={format.number(warnings)}
+                            color="orange"
+                            variant="count"
+                          />
+                        </Tooltip>
                       )}
                     </Section>
                     <Text font="secondary-body" color="text-03">

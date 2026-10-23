@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import {
   Button,
   InputSingleComboBox,
-  Tag,
+  Chip,
   Table,
   type TableColumn,
 } from "@opal/components";
@@ -249,11 +249,10 @@ export default function GroupShareList({
           {rows.map((row) => {
             const groupId = row.groupId;
             return groupId === undefined ? null : (
-              <Tag
+              <Chip
                 key={row.id}
                 title={row.name}
                 icon={row.icon}
-                size="md"
                 onRemove={() => removeGroup(groupId)}
                 disabled={disabled || isLoading || loadFailed}
               />
