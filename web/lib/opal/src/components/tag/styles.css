@@ -3,8 +3,9 @@
 /* ---------------------------------------------------------------------------
    Tag
 
-   A coloured pill around a `Content` (secondary preset), which draws the icon
-   and title. Fixed height of 1rem (sm) / 1.375rem (md).
+   A coloured pill around a `Content` (secondary preset, body variant: the
+   title in secondary-body), which draws the icon and title. Fixed height of
+   1rem (sm) / 1.375rem (md).
    --------------------------------------------------------------------------- */
 
 .opal-auxiliary-tag {

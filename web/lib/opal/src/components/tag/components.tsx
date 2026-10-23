@@ -83,8 +83,9 @@ function Tag({
       data-size={size}
     >
       <Content
+        // The body variant sets the title in secondary-body.
         sizePreset="secondary"
-        variant="section"
+        variant="body"
         width="fit"
         color="interactive"
         icon={icon}
