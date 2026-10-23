@@ -544,6 +544,7 @@ export default function AuthenticationAccountCard({
                 // One line; a long name is cut, in full on hover.
                 titleMaxLines={1}
                 editable={canEditAccount}
+                editTooltip={t("renameButton.tooltip")}
                 onTitleChange={(name) => void saveAccount({ name })}
                 suffix={t("sourceSuffix", { source: sourceName })}
                 description={t("addedOn.label", { date: addedOn })}

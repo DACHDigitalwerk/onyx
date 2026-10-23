@@ -3429,6 +3429,9 @@
             "label": "Relancer les vérifications",
             "notOwnerTooltip": "Tant qu'aucun connecteur n'utilise cet identifiant, seul le propriétaire peut relancer ses vérifications"
           },
+          "renameButton": {
+            "tooltip": "Renommer le compte"
+          },
           "authenticationType": {
             "label": "Type d’authentification"
           },

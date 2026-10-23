@@ -3429,6 +3429,9 @@
             "label": "Re-run Checks",
             "notOwnerTooltip": "Only the owner can re-run this credential's checks until a connector uses it"
           },
+          "renameButton": {
+            "tooltip": "Rename Account"
+          },
           "authenticationType": {
             "label": "Authentication Type"
           },

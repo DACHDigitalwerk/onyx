@@ -3429,6 +3429,9 @@
             "label": "Prüfungen erneut ausführen",
             "notOwnerTooltip": "Bis ein Connector diese Anmeldedaten nutzt, kann nur der Eigentümer ihre Prüfungen erneut ausführen"
           },
+          "renameButton": {
+            "tooltip": "Konto umbenennen"
+          },
           "authenticationType": {
             "label": "Authentifizierungstyp"
           },

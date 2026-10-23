@@ -3429,6 +3429,9 @@
             "label": "Executar verificações novamente",
             "notOwnerTooltip": "Até que um conector use esta credencial, somente o proprietário pode executar novamente as verificações"
           },
+          "renameButton": {
+            "tooltip": "Renomear conta"
+          },
           "authenticationType": {
             "label": "Tipo de autenticação"
           },

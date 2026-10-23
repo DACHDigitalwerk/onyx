@@ -3429,6 +3429,9 @@
             "label": "チェックを再実行",
             "notOwnerTooltip": "コネクタがこの認証情報を使用するまで、チェックを再実行できるのは所有者のみです"
           },
+          "renameButton": {
+            "tooltip": "アカウント名を変更"
+          },
           "authenticationType": {
             "label": "認証タイプ"
           },

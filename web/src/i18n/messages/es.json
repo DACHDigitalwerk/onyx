@@ -3429,6 +3429,9 @@
             "label": "Volver a ejecutar comprobaciones",
             "notOwnerTooltip": "Hasta que un conector use esta credencial, solo el propietario puede volver a ejecutar sus comprobaciones"
           },
+          "renameButton": {
+            "tooltip": "Cambiar el nombre de la cuenta"
+          },
           "authenticationType": {
             "label": "Tipo de autenticación"
           },
