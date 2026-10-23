@@ -17,7 +17,6 @@ from onyx.db.credentials import (
     CredentialAccessLevel,
     alter_credential,
     create_credential,
-    delete_credential,
     delete_credential_for_user,
     fetch_credential_by_id_for_user,
     fetch_credential_group_ids,
@@ -191,8 +190,8 @@ def delete_credential_by_id_admin(
     user: User = Depends(require_permission(Permission.MANAGE_CONNECTORS)),
     db_session: Session = Depends(get_session),
 ) -> StatusResponse:
-    """Same as the user endpoint, but can delete any credential (not just the user's own)"""
-    delete_credential(db_session=db_session, credential_id=credential_id)
+    """Same as the user endpoint: only the owner may delete a credential."""
+    delete_credential_for_user(credential_id, user, db_session)
     emit_audit_event(
         AuditAction.CREDENTIAL_DELETE,
         AuditOutcome.SUCCESS,
@@ -511,8 +510,9 @@ def update_credential_sharing_endpoint(
     ),
     db_session: Session = Depends(get_session),
 ) -> CredentialSnapshot:
-    """Changes who may reuse a saved credential. The owner, or an admin who can
-    edit it, may do this. ``name`` changes the name when set."""
+    """Changes who may reuse a saved credential. Only its owner may do this, so
+    a credential with no owner keeps its sharing. ``name`` changes the name
+    when set."""
     # Held until update_credential_sharing commits: the current groups read
     # below must still be the groups the write replaces.
     lock_credential__no_commit(db_session, credential_id)
