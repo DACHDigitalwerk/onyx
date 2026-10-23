@@ -26,6 +26,11 @@ export interface GroupShareLockedRow {
   memberCount?: number;
   /** Why the row is fixed, e.g. "Always shared". */
   note: string;
+  /**
+   * A fixed value after the note, lined up with the picked groups' own
+   * control, e.g. the role the row always has.
+   */
+  role?: React.ReactNode;
 }
 
 interface GroupShareRow {
@@ -35,6 +40,8 @@ interface GroupShareRow {
   memberCount?: number;
   /** Set on a locked row. */
   note?: string;
+  /** Set on a locked row with a fixed value after its note. */
+  role?: React.ReactNode;
   /** Set on a picked group, which the remove button drops. */
   groupId?: number;
 }
@@ -157,6 +164,7 @@ export default function GroupShareList({
     .map((group) => ({ id: String(group.id), label: group.name }));
 
   const hasLockedRows = lockedRows.length > 0;
+  const hasLockedRole = lockedRows.some((row) => row.role !== undefined);
   const columns: TableColumn<GroupShareRow>[] = [
     {
       kind: "qualifier",
@@ -191,12 +199,13 @@ export default function GroupShareList({
           {
             kind: "display",
             id: "trailing",
-            width: { weight: 20 },
+            // A locked row's note and role stay on one line.
+            width: { weight: 20, minWidth: hasLockedRole ? 260 : undefined },
             hideable: false,
             alignment: "right",
             cell: (row) => {
               if (row.note) {
-                return (
+                const note = (
                   <Content
                     icon={row.icon}
                     title={row.note}
@@ -204,7 +213,22 @@ export default function GroupShareList({
                     variant="body"
                     orientation="reverse"
                     color="muted"
+                    width="fit"
                   />
+                );
+                if (row.role === undefined) return note;
+                return (
+                  <Section
+                    flexDirection="row"
+                    justifyContent="end"
+                    alignItems="center"
+                    gap={4}
+                    width="fit"
+                    className="shrink-0 whitespace-nowrap"
+                  >
+                    {note}
+                    {row.role}
+                  </Section>
                 );
               }
               const { groupId } = row;
