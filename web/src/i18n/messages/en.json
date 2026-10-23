@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "Delete Account",
-            "inUseTooltip": "Cannot delete this credential because there are other connectors that are using it."
+            "inUseTooltip": "Cannot delete this credential because there are other connectors that are using it.",
+            "notOwnerTooltip": "Only the owner can delete this credential"
           },
           "updateButton": {
             "label": "Update Credentials",
@@ -3425,7 +3426,8 @@
             "description": "Saved account credentials can't be edited or redirected to a different host. You can test the account before reuse or add a new account instead."
           },
           "rerunButton": {
-            "label": "Re-run Checks"
+            "label": "Re-run Checks",
+            "notOwnerTooltip": "Only the owner can re-run this credential's checks"
           },
           "authenticationType": {
             "label": "Authentication Type"

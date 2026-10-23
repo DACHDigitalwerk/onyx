@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "删除账户",
-            "inUseTooltip": "无法删除此凭据，因为有其他连接器正在使用它。"
+            "inUseTooltip": "无法删除此凭据，因为有其他连接器正在使用它。",
+            "notOwnerTooltip": "只有所有者可以删除此凭据"
           },
           "updateButton": {
             "label": "更新凭据",
@@ -3425,7 +3426,8 @@
             "description": "已保存账户的凭据无法编辑，也无法指向其他主机。你可以在复用前测试该账户，或改为添加新账户。"
           },
           "rerunButton": {
-            "label": "重新运行检查"
+            "label": "重新运行检查",
+            "notOwnerTooltip": "只有所有者可以重新运行此凭据的检查"
           },
           "authenticationType": {
             "label": "认证类型"

@@ -411,28 +411,37 @@ export default function AuthenticationAccountCard({
                             onClick={onUpdateCredentials}
                           />
                         )}
-                        {/* Only the owner may delete the account. */}
-                        {isOwnAccount && (
-                          <Button
-                            variant="danger"
-                            prominence="tertiary"
-                            icon={SvgTrash}
-                            aria-label={t("deleteButton.label")}
-                            // The server refuses to delete an account that
-                            // connectors still use.
-                            disabled={inUse}
-                            tooltip={
-                              inUse ? t("deleteButton.inUseTooltip") : undefined
-                            }
-                            onClick={() => setConfirmingDelete(true)}
-                          />
-                        )}
+                        <Button
+                          variant="danger"
+                          prominence="internal"
+                          icon={SvgTrash}
+                          aria-label={t("deleteButton.label")}
+                          // Only the owner may delete the account, and the
+                          // server refuses one that connectors still use.
+                          disabled={!isOwnAccount || inUse}
+                          tooltip={
+                            !isOwnAccount
+                              ? t("deleteButton.notOwnerTooltip")
+                              : inUse
+                                ? t("deleteButton.inUseTooltip")
+                                : undefined
+                          }
+                          onClick={() => setConfirmingDelete(true)}
+                        />
                         <Button
                           prominence="secondary"
                           // The label holds still while the checks run; only
                           // the icon turns into a spinner.
                           icon={running ? IconLoader : SvgPlay}
-                          disabled={running}
+                          // Only the owner may re-run: the server refuses a
+                          // non-owner unless a connector already uses the
+                          // account.
+                          disabled={running || !isOwnAccount}
+                          tooltip={
+                            isOwnAccount
+                              ? undefined
+                              : t("rerunButton.notOwnerTooltip")
+                          }
                           onClick={rerunChecks}
                         >
                           {t("rerunButton.label")}

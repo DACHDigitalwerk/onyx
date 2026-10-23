@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "Eliminar cuenta",
-            "inUseTooltip": "No se puede eliminar esta credencial porque hay otros conectores que la están usando."
+            "inUseTooltip": "No se puede eliminar esta credencial porque hay otros conectores que la están usando.",
+            "notOwnerTooltip": "Solo el propietario puede eliminar esta credencial"
           },
           "updateButton": {
             "label": "Actualizar credenciales",
@@ -3425,7 +3426,8 @@
             "description": "Las credenciales de una cuenta guardada no se pueden editar ni redirigir a otro host. Puedes probar la cuenta antes de reutilizarla o añadir una cuenta nueva."
           },
           "rerunButton": {
-            "label": "Volver a ejecutar comprobaciones"
+            "label": "Volver a ejecutar comprobaciones",
+            "notOwnerTooltip": "Solo el propietario puede volver a ejecutar las comprobaciones de esta credencial"
           },
           "authenticationType": {
             "label": "Tipo de autenticación"

@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "Supprimer le compte",
-            "inUseTooltip": "Impossible de supprimer cet identifiant, car d’autres connecteurs l’utilisent."
+            "inUseTooltip": "Impossible de supprimer cet identifiant, car d’autres connecteurs l’utilisent.",
+            "notOwnerTooltip": "Seul le propriétaire peut supprimer cet identifiant"
           },
           "updateButton": {
             "label": "Mettre à jour les identifiants",
@@ -3425,7 +3426,8 @@
             "description": "Les identifiants d’un compte enregistré ne peuvent pas être modifiés ni redirigés vers un autre hôte. Vous pouvez tester le compte avant de le réutiliser ou ajouter un nouveau compte."
           },
           "rerunButton": {
-            "label": "Relancer les vérifications"
+            "label": "Relancer les vérifications",
+            "notOwnerTooltip": "Seul le propriétaire peut relancer les vérifications de cet identifiant"
           },
           "authenticationType": {
             "label": "Type d’authentification"

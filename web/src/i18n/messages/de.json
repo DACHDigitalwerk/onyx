@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "Konto löschen",
-            "inUseTooltip": "Diese Zugangsdaten können nicht gelöscht werden, da andere Konnektoren sie verwenden."
+            "inUseTooltip": "Diese Zugangsdaten können nicht gelöscht werden, da andere Konnektoren sie verwenden.",
+            "notOwnerTooltip": "Nur der Eigentümer kann diese Anmeldedaten löschen"
           },
           "updateButton": {
             "label": "Anmeldedaten aktualisieren",
@@ -3425,7 +3426,8 @@
             "description": "Gespeicherte Kontozugangsdaten können nicht bearbeitet oder an einen anderen Host umgeleitet werden. Sie können das Konto vor der Wiederverwendung testen oder stattdessen ein neues Konto hinzufügen."
           },
           "rerunButton": {
-            "label": "Prüfungen erneut ausführen"
+            "label": "Prüfungen erneut ausführen",
+            "notOwnerTooltip": "Nur der Eigentümer kann die Prüfungen dieser Anmeldedaten erneut ausführen"
           },
           "authenticationType": {
             "label": "Authentifizierungstyp"

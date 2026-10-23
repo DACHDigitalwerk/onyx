@@ -3402,7 +3402,8 @@
           },
           "deleteButton": {
             "label": "Excluir conta",
-            "inUseTooltip": "Não é possível excluir esta credencial porque há outros conectores usando-a."
+            "inUseTooltip": "Não é possível excluir esta credencial porque há outros conectores usando-a.",
+            "notOwnerTooltip": "Somente o proprietário pode excluir esta credencial"
           },
           "updateButton": {
             "label": "Atualizar credenciais",
@@ -3425,7 +3426,8 @@
             "description": "As credenciais de uma conta salva não podem ser editadas nem redirecionadas para outro host. Você pode testar a conta antes de reutilizá-la ou adicionar uma nova conta."
           },
           "rerunButton": {
-            "label": "Executar verificações novamente"
+            "label": "Executar verificações novamente",
+            "notOwnerTooltip": "Somente o proprietário pode executar novamente as verificações desta credencial"
           },
           "authenticationType": {
             "label": "Tipo de autenticação"
