@@ -70,6 +70,12 @@ interface ContentBaseProps {
   onTitleChange?: (newTitle: string) => void;
 
   /**
+   * Tooltip and accessible name of the edit button. Pass translated text;
+   * unset, it is the generic "Edit".
+   */
+  editTooltip?: string;
+
+  /**
    * Width preset controlling the component's horizontal size.
    *
    * - `"auto"` — Shrink-wraps to content width
@@ -159,7 +165,7 @@ type MdContentProps = ContentBaseProps & {
 /** ContentSm does not support descriptions or inline editing. */
 type SmContentProps = Omit<
   ContentBaseProps,
-  "description" | "editable" | "onTitleChange"
+  "description" | "editable" | "onTitleChange" | "editTooltip"
 > & {
   sizePreset: "main-content" | "main-ui" | "secondary";
   variant: "body";

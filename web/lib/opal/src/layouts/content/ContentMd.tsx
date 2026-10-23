@@ -77,6 +77,12 @@ interface ContentMdProps {
   onTitleChange?: (newTitle: string) => void;
 
   /**
+   * Tooltip and accessible name of the edit button. Pass translated text;
+   * unset, it is the generic "Edit".
+   */
+  editTooltip?: string;
+
+  /**
    * Muted suffix rendered beside the title.
    * Use `"optional"` for the translated "(Optional)" label (`OpalStrings.contentOptional`), or pass any string.
    */
@@ -164,6 +170,7 @@ function ContentMd({
   descriptionMaxLines,
   editable,
   onTitleChange,
+  editTooltip,
   suffix,
   auxIcon,
   tag,
@@ -341,8 +348,8 @@ function ContentMd({
                 icon={SvgEdit}
                 prominence="internal"
                 size={config.editButtonSize}
-                aria-label={strings.edit}
-                tooltip={strings.edit}
+                aria-label={editTooltip ?? strings.edit}
+                tooltip={editTooltip ?? strings.edit}
                 tooltipSide="end"
                 onClick={handleTitleClick}
               />
