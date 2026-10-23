@@ -10790,7 +10790,8 @@
         "title": "Probar conexión",
         "description": "{appName} ejecutará comprobaciones para validar los permisos necesarios antes de continuar.",
         "startButton": {
-          "label": "Iniciar comprobaciones"
+          "label": "Iniciar comprobaciones",
+          "disabledTooltip": "Elige una cuenta o completa una nueva arriba para iniciar las comprobaciones"
         }
       },
       "title": "Comprobaciones del conector",

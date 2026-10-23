@@ -10790,7 +10790,8 @@
         "title": "Test Connection",
         "description": "{appName} will run checks to validate required scopes before proceeding.",
         "startButton": {
-          "label": "Start Checks"
+          "label": "Start Checks",
+          "disabledTooltip": "Choose an account or fill in a new one above to start the checks"
         }
       },
       "title": "Connector Checks",

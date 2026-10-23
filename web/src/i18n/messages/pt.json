@@ -10790,7 +10790,8 @@
         "title": "Testar conexão",
         "description": "{appName} executará verificações para validar os escopos necessários antes de continuar.",
         "startButton": {
-          "label": "Iniciar verificações"
+          "label": "Iniciar verificações",
+          "disabledTooltip": "Escolha uma conta ou preencha uma nova acima para iniciar as verificações"
         }
       },
       "title": "Verificações do conector",

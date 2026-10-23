@@ -10790,7 +10790,8 @@
         "title": "Tester la connexion",
         "description": "{appName} effectuera des vérifications pour valider les autorisations requises avant de continuer.",
         "startButton": {
-          "label": "Lancer les vérifications"
+          "label": "Lancer les vérifications",
+          "disabledTooltip": "Choisissez un compte ou renseignez-en un nouveau ci-dessus pour lancer les vérifications"
         }
       },
       "title": "Vérifications du connecteur",
